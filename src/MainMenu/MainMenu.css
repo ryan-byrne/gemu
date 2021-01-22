@@ -1,0 +1,32 @@
+div {
+  margin: 10px;
+}
+
+.mainMenu {
+  display: flex;
+  padding-top: 25%;
+  justify-content: center;
+}
+
+.subMenu {
+  justify-content: center;
+  display: flex;
+}
+
+.hoveredMenuItem {
+  color: white;
+  background-color: grey;
+}
+
+.normalMenuItem {
+  color: black;
+}
+
+.roomCode {
+  border: 1px solid #b3b3b3;
+  border-radius: 10px;
+  font-size:30px;
+  text-align: center;
+  padding-bottom: 5px;
+  padding-top: 5px;
+}
