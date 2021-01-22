@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/gemu/static/css/main.f9fdecc0.chunk.css",
+    "main.js": "/gemu/static/js/main.a396c47b.chunk.js",
+    "main.js.map": "/gemu/static/js/main.a396c47b.chunk.js.map",
+    "runtime-main.js": "/gemu/static/js/runtime-main.b2ebcdf1.js",
+    "runtime-main.js.map": "/gemu/static/js/runtime-main.b2ebcdf1.js.map",
+    "static/js/2.2351e510.chunk.js": "/gemu/static/js/2.2351e510.chunk.js",
+    "static/js/2.2351e510.chunk.js.map": "/gemu/static/js/2.2351e510.chunk.js.map",
+    "static/js/3.a1351e14.chunk.js": "/gemu/static/js/3.a1351e14.chunk.js",
+    "static/js/3.a1351e14.chunk.js.map": "/gemu/static/js/3.a1351e14.chunk.js.map",
+    "index.html": "/gemu/index.html",
+    "static/css/main.f9fdecc0.chunk.css.map": "/gemu/static/css/main.f9fdecc0.chunk.css.map",
+    "static/js/2.2351e510.chunk.js.LICENSE.txt": "/gemu/static/js/2.2351e510.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.b2ebcdf1.js",
+    "static/js/2.2351e510.chunk.js",
+    "static/css/main.f9fdecc0.chunk.css",
+    "static/js/main.a396c47b.chunk.js"
+  ]
+}
