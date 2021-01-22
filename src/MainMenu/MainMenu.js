@@ -73,62 +73,101 @@ class JoinMenu extends React.Component {
 
   constructor() {
     super()
-    this.state = {
-      roomCode:'ROOM CODE',
-      textColor:'#d1d1d1',
-      letterSpacing:'1px'
-    }
-  }
-
-  inputSelect() {
-    this.setState({roomCode:""})
-  }
-
-  roomInput(event) {
-
-    let type = event.nativeEvent.inputType;
-
-    if (type === 'insertText'){
-      let newText = this.state.roomCode + event.nativeEvent.data;
-      this.setState({roomCode:newText})
-      console.log(newText);
-    }
-    else if (type === "") {}
-
-    console.log(type);
-
-  }
-
-  roomOut() {
-    this.setState({
-      roomCode:'ROOM CODE',
-      textColor:'#d1d1d1',
-      letterSpacing:'1px'
-    })
   }
 
   render() {
 
     return (
-      <div>
-        <form>
-          <label>
-            <input
-              onBlur={this.roomOut.bind(this)} value={this.state.roomCode}
-              onChange={this.roomInput.bind(this)} autoComplete='off'
-              onClick={this.inputSelect.bind(this)} className='roomCode'
-              type="text" maxLength='6' style={
-                {
-                  color:this.state.textColor
-                }
-              }
-            />
-          </label>
-        </form>
+      <div className='joinForm'>
+        <FormItem name="name" maxLength='10' letterSpacing='5px'/>
+        <FormItem name="email" maxLength='20' letterSpacing='2px'/>
+        <FormItem name="code" maxLength='6' letterSpacing='1px'/>
       </div>
     )
   }
 
+}
+
+class FormItem extends React.Component {
+
+  constructor(props) {
+    super()
+    this.state = {
+      formText:props.name.toUpperCase(),
+      color:'lightgray',
+      completed:false,
+      letterSpacing:'2px',
+      error:false
+    }
+  }
+
+  textInput(event) {
+
+    let type = event.nativeEvent.inputType;
+    let currentText = this.state.formText;
+    let newText;
+
+    if (type === 'insertText'){
+      newText = currentText + event.nativeEvent.data;
+    }
+    else if (type === "deleteContentBackward") {
+      newText = ""
+    }
+    else {
+      newText = currentText;
+    }
+
+    this.setState({
+      formText:newText,
+      color:'blue',
+      border:'solid 2px #FFDC00'
+    })
+
+  }
+
+  inputSelect() {
+    let text = this.state.formText === this.props.name.toUpperCase() ? "" : this.state.formText;
+    this.setState({formText:text})
+  }
+
+  leaveText() {
+
+    if (this.state.formText.length > 0) {
+      return
+    }
+    else {
+      this.setState({
+        formText:this.props.name.toUpperCase(),
+        color:'#d1d1d1',
+        letterSpacing:'1px'
+      })
+    }
+
+    let text = this.state.formText === "" ? this.props.name : this.state.formText
+  }
+
+  render () {
+
+    let color = this.state.completed ?  'green' : 'lightgray'
+
+    return (
+      <div>
+        <input
+        onBlur={this.leaveText.bind(this)} value={this.state.formText}
+        onFocus={this.inputSelect.bind(this)}
+        onChange={this.textInput.bind(this)} autoComplete='off' className='formInput'
+        type="text" maxLength={this.props.maxLength} style={
+          {
+            color:this.state.color,
+            fontSize:this.state.fontSize,
+            letterSpacing:this.state.letterSpacing,
+            borderColor:color
+          }
+        }
+        />
+    </div>
+    )
+  }
 }
 
 class StartMenu extends React.Component {
@@ -143,6 +182,5 @@ class StartMenu extends React.Component {
     )
   }
 }
-
 
 export default MainMenu;

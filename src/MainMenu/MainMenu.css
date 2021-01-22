@@ -15,18 +15,20 @@ div {
 
 .hoveredMenuItem {
   color: white;
-  background-color: grey;
+  background-color: lightblue;
 }
 
 .normalMenuItem {
   color: black;
 }
 
-.roomCode {
+input {
   border: 1px solid #b3b3b3;
   border-radius: 10px;
-  font-size:30px;
   text-align: center;
-  padding-bottom: 5px;
-  padding-top: 5px;
+  padding: 5px;
+}
+
+input:focus {
+  outline-width: 0;
 }
