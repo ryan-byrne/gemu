@@ -7,7 +7,7 @@ class Gemu extends React.Component {
   constructor(){
     super();
     // TODO: set default ready to false after testing
-    this.state = {ready:true,name:null,email:null,code:null}
+    this.state = {ready:true,name:"ryan",email:null,code:null}
   }
 
   setReady(type, settings){

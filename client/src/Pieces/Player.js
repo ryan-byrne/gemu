@@ -13,18 +13,37 @@ class Player extends React.Component {
 
   render() {
 
+    // TODO: Add facial recognition
+
     const style = {
       top:'40%',
       left:'45%',
       overflow:"hidden",
-      width:100,
-      height:100
+      color:'white',
     }
 
     return (
       <div className="playerContainer" style={style}>
-        <Webcam height={120} />
+        {this.props.name}
+        <AudioBar/>
+        <div className="cameraCropper">
+          <Webcam height={120}/>
+        </div>
       </div>
+    )
+  }
+}
+
+
+class AudioBar extends React.Component{
+
+  constructor(props){
+    super(props);
+  }
+
+  render() {
+    return(
+        <div>AudioBar</div>
     )
   }
 }

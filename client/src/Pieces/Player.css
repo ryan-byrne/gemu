@@ -1,5 +1,14 @@
 .playerContainer {
-  position: relative;
+  position: absolute;
+  width: 100px;
   left: 40%;
   top: 40%;
+}
+
+.cameraCropper {
+  border-radius: 25px;
+  height: 100px;
+  width: 100px;
+  overflow: hidden;
+  margin: 0 -50px 0 -50px;
 }
