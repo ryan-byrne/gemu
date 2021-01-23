@@ -1,0 +1,6 @@
+.playerContainer {
+  height: 100%;
+  border: 5px red;
+  padding: 5px;
+  background-color: 'blue';
+}

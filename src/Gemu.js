@@ -1,14 +1,15 @@
 import React from 'react';
 import MainMenu from './MainMenu';
-import Game from './Game';
+import MainGame from './MainGame';
 
 
 class Gemu extends React.Component {
 
   constructor(){
     super();
+    // TODO: set default ready to false after testing
     this.state = {
-      ready:false,
+      ready:true,
       name:null,
       email:null,
       code:null
@@ -26,10 +27,8 @@ class Gemu extends React.Component {
 
   render(){
 
-    console.log(this.state);
-
     if (this.state.ready){
-      return <Game id={this.state.id} name={this.state.name} email={this.state.email}/>
+      return <MainGame className='mainScreen' id={this.state.id} name={this.state.name} email={this.state.email}/>
     }
     else {
       return <MainMenu setReady={this.setReady.bind(this)}/>
