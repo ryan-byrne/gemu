@@ -1,34 +1,36 @@
 import React from 'react';
 import './MainMenu.css';
-import Join from '../Game/Join.js';
 
 class MainMenu extends React.Component {
 
   constructor(){
     super();
-    this.state = {index:0}
+    this.state = {highlighted:0}
   }
 
   changeMenu(index) {
-    if (index === this.state.index) {
-      this.setState({index:0})
+    if (index === this.state.highlighted) {
+      this.setState({highlighted:0})
     }
     else {
-      this.setState({index:index})
+      this.setState({highlighted:index})
     }
   }
 
   render() {
 
-    const subMenus = [<div></div>, <JoinMenu/>, <StartMenu/>]
+    const subMenus = [
+      <div></div>,
+      <JoinMenu setReady={this.props.setReady}/>,
+      <StartMenu setReady={this.props.setReady}/>]
 
     return (
       <div className='menuContainer'>
         <div className='mainMenu'>
-          <MenuItem name="Join a Gemu" onClick={(e) => this.changeMenu(1)}/>
-          <MenuItem name="Start a Gemu" onClick={(e) => this.changeMenu(2)}/>
+          <MenuItem setReady={this.props.setReady.bind(this)} name="Join" onClick={(e) => this.changeMenu(1)}/>
+          <MenuItem setReady={this.props.setReady.bind(this)} name="Start" onClick={(e) => this.changeMenu(2)}/>
         </div>
-        <div className='subMenu'>{subMenus[this.state.index]}</div>
+        <div className='subMenu'>{subMenus[this.state.highlighted]}</div>
       </div>
     )
   }
@@ -62,7 +64,7 @@ class MenuItem extends React.Component {
         onClick = {this.props.onClick}
         style = {{padding:'20px', cursor:'pointer', borderRadius:'10px'}}
       >
-        {this.props.name}
+        {this.props.name} a Gemu
       </div>
     )
   }
@@ -117,7 +119,7 @@ class JoinMenu extends React.Component {
   render() {
 
     if (this.validateEntries()){
-      <Join email={this.state.email} name={this.state.name} game_id={this.state.code}/>
+      this.props.setReady('join', this.state);
     }
 
     const formProps = [
