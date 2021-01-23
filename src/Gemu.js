@@ -1,6 +1,5 @@
 import React from 'react';
-import './Gemu.css';
-import MainMenu from '../MainMenu/MainMenu';
+import MainMenu from './MainMenu/MainMenu';
 
 
 class Gemu extends React.Component {

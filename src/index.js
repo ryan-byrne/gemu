@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import Gemu from './Gemu/Gemu';
+import Gemu from './Gemu';
 import reportWebVitals from './reportWebVitals';
 
 ReactDOM.render(
