@@ -1,8 +1,8 @@
 import React from 'react';
 import MainMenu from './menu/Main';
-import MainGame from './MainGame';
+import Room from './Room';
 
-class Gemu extends React.Component {
+class Lobby extends React.Component {
 
   constructor(){
     super();
@@ -17,7 +17,7 @@ class Gemu extends React.Component {
   render(){
 
     if (this.state.ready){
-      return <MainGame className='mainScreen' id={this.state.id} name={this.state.name} email={this.state.email}/>
+      return <Room className='mainScreen' id={this.state.id} name={this.state.name} email={this.state.email}/>
     }
     else {
       return <MainMenu setReady={this.setReady.bind(this)}/>
@@ -25,4 +25,4 @@ class Gemu extends React.Component {
   }
 }
 
-export default Gemu;
+export default Lobby;

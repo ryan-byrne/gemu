@@ -1,6 +1,6 @@
 import React from 'react';
-import Player from './Pieces/Player';
-import './MainGame.css';
+import Player from './Player';
+import './style/Room.css';
 
 
 class MainGame extends React.Component {
@@ -110,18 +110,10 @@ class MainGame extends React.Component {
   }
 
   handleResize(){
-    // TODO: recenter player
+
     const {innerWidth: width, innerHeight: height} = window
 
-    const x2 = this.state.x + this.state.width - width;
-    const y2 = this.state.y + this.state.height - height;
-
-    this.setState({
-      width:width,
-      height:height,
-      x:x2,
-      y:y2
-    });
+    this.setState({width:width,height:height,});
   }
 
   componentDidMount(){
@@ -140,7 +132,6 @@ class MainGame extends React.Component {
 
     // TODO: Replace static background with actual game room
 
-    // TODO: Position on screen general screen doesn't change w/ resize
 
     const roomPos = {
       backgroundPositionX: -this.state.x+this.state.width/2,

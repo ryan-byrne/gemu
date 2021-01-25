@@ -6,7 +6,7 @@
 }
 
 .roomContainer {
-  background-image: url("./Pieces/img/back.jpg");
+  background-image: url("../img/back.jpg");
   background-repeat: no-repeat;
   object-fit: cover;
   margin: 0;

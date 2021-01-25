@@ -1,12 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-import Gemu from './Gemu';
+import './style/index.css';
+import Lobby from './Lobby';
 import reportWebVitals from './reportWebVitals';
 
 ReactDOM.render(
   <React.StrictMode>
-    <Gemu />
+    <Lobby />
   </React.StrictMode>,
   document.getElementById('root')
 );

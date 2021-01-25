@@ -1,0 +1,15 @@
+.playerContainer {
+  position: absolute;
+  margin:0;
+  width: 200px;
+  text-align: center;
+}
+
+.cameraCropper{
+  border-radius: 50px;
+  overflow: hidden;
+}
+
+.cameraFrame{
+  margin-left: -45%;
+}

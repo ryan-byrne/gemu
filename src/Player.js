@@ -1,6 +1,6 @@
 import React from 'react';
 import Webcam from 'react-webcam';
-import './Player.css';
+import './style/Player.css';
 
 
 class Player extends React.Component {
@@ -27,7 +27,7 @@ class Player extends React.Component {
         {this.props.name}
         <AudioBar/>
         <div className="cameraCropper">
-          <Webcam height={120}/>
+          <Webcam className='cameraFrame' height={200}/>
         </div>
       </div>
     )
