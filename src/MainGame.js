@@ -58,18 +58,25 @@ class MainGame extends React.Component {
     var commands = this.state.pressedKeys.map( (key) => {
 
       if (key === 'ArrowRight'){
-        this.setState({x:this.state.x+step});
+        this.setState({
+          x:Math.min(this.state.x+step, this.state.backgroundWidth+this.state.width)
+        });
       }
       else if (key === 'ArrowLeft'){
-        this.setState({x:this.state.x-step});
+        this.setState({
+          x:Math.max(this.state.x-step, 0)
+        });
       }
       else if (key === 'ArrowUp'){
-        this.setState({y:this.state.y+step});
+        this.setState({
+          y:Math.min(this.state.y+step, this.state.backgroundHeight+this.state.height)
+        });
       }
       else if (key === 'ArrowDown'){
-        this.setState({y:this.state.y-step});
+        this.setState({
+          y:Math.max(this.state.y-step, 0)
+        });
       }
-
     });
 
   }
@@ -136,14 +143,11 @@ class MainGame extends React.Component {
     // TODO: Position on screen general screen doesn't change w/ resize
 
     const roomPos = {
-      backgroundPositionX: -this.state.x-this.state.width/2,
+      backgroundPositionX: -this.state.x+this.state.width/2,
       backgroundPositionY: -this.state.backgroundHeight+this.state.y+this.state.height/2,
       height: this.state.height,
       width: this.state.width,
     }
-
-    console.log(this.state);
-
 
     return (
       <div className="gameContainer">
