@@ -1,0 +1,13 @@
+.gameContainer {
+  position: absolute;
+  margin:0;
+  height: 100%;
+  width: 100%;
+}
+
+.roomContainer {
+  background-image: url("./Pieces/img/back.jpg");
+  background-repeat: no-repeat;
+  object-fit: cover;
+  margin: 0;
+}
