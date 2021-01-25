@@ -25,6 +25,9 @@ class MainGame extends React.Component {
   left = x - width/2 - 3200
   top = y - height/2 - 2000
 
+
+
+
   * = x,y
 
   Player is always center of screen
@@ -38,7 +41,7 @@ class MainGame extends React.Component {
     const {innerWidth: width, innerHeight: height} = window
     this.state = {
       x:0,
-      y:-800,
+      y:0,
       width:width,
       height:height,
       backgroundWidth:3200,
@@ -55,20 +58,16 @@ class MainGame extends React.Component {
     var commands = this.state.pressedKeys.map( (key) => {
 
       if (key === 'ArrowRight'){
-        this.setState({
-          x:Math.max(this.state.x-step, this.state.width-this.state.backgroundWidth)
-        });
+        this.setState({x:this.state.x+step});
       }
       else if (key === 'ArrowLeft'){
-        this.setState({x:Math.min(this.state.x+step,0)});
+        this.setState({x:this.state.x-step});
       }
       else if (key === 'ArrowUp'){
-        this.setState({y:Math.min(this.state.y+step,0)});
+        this.setState({y:this.state.y+step});
       }
       else if (key === 'ArrowDown'){
-        this.setState({
-          y:Math.max(this.state.y-step, this.state.height-this.state.backgroundHeight)
-        });
+        this.setState({y:this.state.y-step});
       }
 
     });
@@ -104,8 +103,18 @@ class MainGame extends React.Component {
   }
 
   handleResize(){
+    // TODO: recenter player
     const {innerWidth: width, innerHeight: height} = window
-    this.setState({width:width,height:height});
+
+    const x2 = this.state.x + this.state.width - width;
+    const y2 = this.state.y + this.state.height - height;
+
+    this.setState({
+      width:width,
+      height:height,
+      x:x2,
+      y:y2
+    });
   }
 
   componentDidMount(){
@@ -127,10 +136,10 @@ class MainGame extends React.Component {
     // TODO: Position on screen general screen doesn't change w/ resize
 
     const roomPos = {
-      backgroundPositionX:this.state.x,
-      backgroundPositionY:this.state.y,
+      backgroundPositionX: -this.state.x-this.state.width/2,
+      backgroundPositionY: -this.state.backgroundHeight+this.state.y+this.state.height/2,
       height: this.state.height,
-      width:this.state.width,
+      width: this.state.width,
     }
 
     console.log(this.state);
