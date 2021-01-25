@@ -46,12 +46,15 @@ class MainGame extends React.Component {
       height:height,
       backgroundWidth:3200,
       backgroundHeight:2000,
+      moveStep:0,
       pressedKeys:[]
     }
   }
 
 
   handleKeyChange(){
+
+    // TODO: Smoother movement during key transitions
 
     var step = this.state.pressedKeys.includes(' ') ? 20 : 10 ;
 
@@ -99,7 +102,9 @@ class MainGame extends React.Component {
 
     let currentKeys = this.state.pressedKeys;
 
-    currentKeys.splice(currentKeys.indexOf(event.key), 1);
+    const idx = currentKeys.indexOf(event.key);
+
+    currentKeys.splice(idx, idx+1);
 
     this.setState({
       pressedKeys:currentKeys
