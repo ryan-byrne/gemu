@@ -1,45 +1,71 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Route, BrowserRouter, Redirect } from 'react-router-dom';
 import Lobby from './Lobby';
-import Room from './Room';
+import Participant from './Participant';
+const socket = require('socket.io-client')();
 
 const Gemu = () => {
 
   // TODO: remove testing values
 
-  const [username, setUsername] = useState('ryan');
-  const [roomId, setRoomId] = useState('GGHMHH');
-  const [gameState, setGameState] = useState('awaiting-room');
+  const [username, setUsername] = useState('');
+  const [roomId, setRoomId] = useState('');
+  const [roomSocket, setRoomSocket] = useState(null);
 
-  const handleStartGame = useCallback( event => {
+  // Change to username
+  const handleUserName = (event) => {
+    if (typeof event === 'string') {setUsername(event)}
+    else {
+      if (!event.target.value) {event.target.className = 'badSubMenuItem' }
+      else { event.target.className = 'goodSubMenuItem' }
+      setUsername(event.target.value)
+    }
+  };
+
+  // Change to room id
+  const handleRoomId = (event) => {
+    if (typeof event === 'string') {setRoomId(event)}
+    else {
+      if (event.target.value.length < 6) {event.target.className = 'badSubMenuItem' }
+      else { event.target.className = 'goodSubMenuItem' }
+      setRoomId(event.target.value.toUpperCase());
+    }
+  };
+
+  // User starts room
+  const handleStartGame = (event) => {
+    if ( roomId.length !== 6 ) { } // Handle incorrect roomID
+    else if (!username) { } // Handle empty username
+    else { socket.emit('startSession', {username:username,roomId:roomId}) }
+  };
+
+  // User joins room
+  const handleJoinGame = (event) => {
     if ( roomId.length !== 6 ) { }
     else if (!username) { }
-    else { setGameState('starting-game') }
-  }, []);
+    else { socket.emit('joinSession', {username:username,roomId:roomId}) }
+  };
 
-  const handleJoinGame = useCallback( event => {
-    if ( roomId.length !== 6 ) { }
-    else if (!username) { }
-    else { setGameState('joining-game')}
-  },[]);
+  // User leaves room
+  const handleLogout = (event) => {
+    socket.emit('leaveSession', {username:username, roomId:roomId})
+    setRoomSocket(null);
+  };
 
-  const handleLogout = useCallback(event => {
-    setGameState('awaiting-room');
-  }, []);
+  socket.on('error', (message) => setRoomSocket(null));
+  socket.on('success', () => setRoomSocket(socket))
 
-  // Main Pointer according to roomServer
-
+  // TODO: Join active game with URL
   return (
     <BrowserRouter>
-      {gameState === 'awaiting-room' ? <Redirect to={'/'}/> : <Redirect to={roomId}/>}
+      { !roomSocket ? <Redirect to='/'/> : <Redirect to={roomId}/>}
       <Route exact path='/'>
-        <Lobby username={username} roomId={roomId} setUsername={setUsername}
-          setRoomId={setRoomId} handleJoinGame={handleJoinGame}
-          handleStartGame={handleStartGame}/>
+        <Lobby username={username} roomId={roomId} handleJoinGame={handleJoinGame}
+          handleStartGame={handleStartGame} handleUserName={handleUserName}
+          handleRoomId={handleRoomId}/>
       </Route>
       <Route path={'/'+roomId}>
-        <Room username={username} roomId={roomId} gameState={gameState}
-          handleLogout={handleLogout}/>
+        <Participant username={username} roomSocket={roomSocket} handleLogout={handleLogout} />
       </Route>
     </BrowserRouter>
   )
