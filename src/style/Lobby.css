@@ -1,0 +1,40 @@
+.menuContainer {
+  position: relative;
+  top: 40%;
+  text-align: center;
+  height: 100%;
+}
+
+.mainMenu {
+  display: inline-block;
+}
+
+.menuItem, .selectedMenuItem {
+  padding: 10px;
+  float: left;
+  border-radius: 5px;
+}
+
+.menuItem:hover, .selectedMenuItem {
+  cursor: pointer;
+  background-color: gray;
+  color: white;
+}
+
+.subMenuItem, .goodSubMenuItem, .badSubMenuItem {
+  border: 2px solid lightgray;
+  border-radius: 10px;
+  text-align: center;
+  padding: 5px;
+  margin: 10px;
+}
+
+.subMenuItem { border-color: lightgray; }
+
+.goodSubMenuItem { border-color: green; }
+
+.badSubMenuItem { border-color: red; }
+
+.subMenuItem:focus, .goodSubMenuItem:focus, .badSubMenuItem:focus {
+  outline: 0;
+}

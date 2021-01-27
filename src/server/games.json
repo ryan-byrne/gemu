@@ -1,0 +1,15 @@
+{
+  "description":"List of Active and Archived Games",
+  "active":{
+    "666666":{
+      "players":[
+        "ryan","caroline"
+      ]
+    },
+    "555555":{
+      "players":[
+        "mom","dad"
+      ]
+    }
+  }
+}
