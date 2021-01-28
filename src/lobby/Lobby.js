@@ -1,10 +1,11 @@
 import React, { useState, useCallback } from 'react';
-import './style/Lobby.css';
 import Naming from './util/Naming';
+import './style/lobby.css';
 
 const Lobby = ({
-  username, roomId, handleUserName, handleRoomId, handleStartGame, handleJoinGame
-}) => {
+    username, roomId, handleUserName, handleRoomId, handleStartGame, handleJoinGame,
+    connectionError
+  }) => {
 
   const [selected, setSelected] = useState(null);
 
@@ -16,7 +17,7 @@ const Lobby = ({
     for (var i = 6; i > 0; --i) result += chars[Math.floor(Math.random() * chars.length)];
     event.target.parentElement.children[0].className = 'goodSubMenuItem';
     handleRoomId(result);
-  }, []);
+  }, [handleRoomId]);
 
   const getRandomName = useCallback( event => {
     var adj = Naming.adjectives[Math.floor(Math.random() * Naming.adjectives.length)];
@@ -25,7 +26,7 @@ const Lobby = ({
     noun = noun.charAt(0).toUpperCase() + noun.slice(1);
     event.target.parentElement.children[0].className = 'goodSubMenuItem';
     handleUserName(adj+noun);
-  }, []);
+  }, [handleUserName]);
 
   const mainMenu = (
     <div className='mainMenu'>
@@ -78,6 +79,7 @@ const Lobby = ({
     <div className='menuContainer'>
       {mainMenu}
       {subMenu}
+      <div>{connectionError}</div>
     </div>
   )
 };

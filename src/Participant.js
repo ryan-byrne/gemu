@@ -1,4 +1,5 @@
 import { React, useEffect, useState, useCallback } from 'react';
+import Webcam from 'react-webcam';
 import './style/Participant.css'
 
 import mute from './img/mute.png';
@@ -59,9 +60,6 @@ const Participant = ({username, roomSocket, handleLogout}) => {
   return (
     <div className="playerContainer" style={{left:position.x,bottom:position.y}}>
       <div className="userName">{username}</div>
-      <div className='playerSprite'
-        style={{height:'200px',width:'200px',backgroundColor:'gray'}}>
-      </div>
       <button onClick={handleLogout}>Logout</button>
     </div>
   )
