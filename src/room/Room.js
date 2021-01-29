@@ -29,7 +29,11 @@ const Room = ({clientSocket, username, roomId, handleLogout, gameState}) => {
     console.log(data.username + 'moved to X: '+data.position.x+" Y: "+data.position.y);
   });
 
-  return (
+  const error = (
+    <div>Connection to Server lost</div>
+  )
+
+  const normal = (
     <div>
       <div><b>{username}'s</b> view of <b>{roomId}</b></div>
       <div>Message: {message}</div>
@@ -37,6 +41,12 @@ const Room = ({clientSocket, username, roomId, handleLogout, gameState}) => {
       {playerArray}
       <Player clientSocket={clientSocket} />
       <button onClick={handleLogout}>Leave</button>
+    </div>
+  )
+
+  return (
+    <div>
+      {!clientSocket.connected ? error : normal}
     </div>
 
   )
