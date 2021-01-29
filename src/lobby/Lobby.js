@@ -3,8 +3,7 @@ import Naming from './util/Naming';
 import './style/lobby.css';
 
 const Lobby = ({
-    username, roomId, handleUserName, handleRoomId, handleStartGame, handleJoinGame,
-    connectionError
+    username, roomId, handleUserName, handleRoomId, handleStartGame, handleJoinGame
   }) => {
 
   const [selected, setSelected] = useState(null);
@@ -79,7 +78,6 @@ const Lobby = ({
     <div className='menuContainer'>
       {mainMenu}
       {subMenu}
-      <div>{connectionError}</div>
     </div>
   )
 };

@@ -7,51 +7,109 @@ const io = require('socket.io')(server);
 
 var games = {}
 
+function startSession(data, socket) {
+  const {roomId, username} = data
+
+  if (roomId in games) {socket.emit('error', data.roomId +' already taken')}
+  else {
+    socket.join(roomId); // Create + join room
+    // Store data
+    games[roomId] = {
+      startedBy:username,
+      startedAt:Date(),
+      active:[{username:username, id:socket.id,x:0,y:0}],
+      inactive:[]}
+    // Send success message
+    socket.emit('success', games[roomId]);
+    console.log(username + ' started ' + roomId + ' using socket: '+socket.id);
+
+  }
+
+}
+
+function joinSession(data, socket){
+  // Establish variables
+  const {roomId, username} = data;
+  // Check if room is open
+  if (!games[roomId]){ socket.emit('error', roomId +' is not active');return; }
+
+  const inactive = games[roomId].inactive;
+  const active = games[roomId].active
+
+  // Check no one already has the name
+  if (active.includes(username)){ socket.emit('error', data.username + ' is taken')}
+  else {
+    // Check if name was previously used
+    inactive.includes(username) ? inactive.pop(inactive.indexOf(username)) : null
+    // Add to room socket + games
+    socket.join(roomId); active.push({username:username,id:socket.id,x:0,y:0});
+    socket.emit('success', games[roomId]); // Sets socket in client
+    socket.to(roomId).emit('joined', {username:username,game:games[roomId]});
+    console.log(username + ' joined ' + roomId);
+  }
+}
+
+function leaveSession(data, socket){
+
+  const {roomId, username} = data;
+
+  if (!games[roomId]) { return } //  Ignore leftover instance
+  else {
+
+    // Establish player arrays
+    const active = games[roomId].active;
+    const inactive = games[roomId].inactive;
+
+    // Switch player to inactive
+    var playerIdx = active.map( (player, idx) =>  {
+      if (player.username === username) { return idx }
+    });
+    inactive.push( active.pop(playerIdx).username );
+    // Broadcast update
+    socket.to(roomId).emit('left', {username:username,game:games[roomId]});
+    console.log(username + ' left ' + roomId);
+  }
+
+}
+
+function disconnect(socket){
+
+  // Iterate through all rooms
+  for (let roomId in games) {
+    // Iterate through active players in room
+    games[roomId].active.map( (player) => {
+      const { username, id } = player;
+      // Leave game if socket matches
+      if ( id === socket.id ) {
+          leaveSession({username:username, roomId:roomId}, socket);
+      }
+    });
+  }
+}
+
 io.on('connection', (socket) => {
 
   console.log(socket.id+' Connected');
 
-  socket.on('startSession', (data) => {
+  socket.on('startSession', (data) => startSession(data, socket) );
 
-    if (data.roomId in games) {socket.emit('error', data.roomId +' already taken')}
-    else {
-      socket.join(data.roomId);
-      games[data.roomId] = {startedBy:data.username,startedAt:Date(),players:[data.username]}
-      socket.emit('success', 'successfully started'+data.roomId);
-    }
+  socket.on('joinSession', (data) => joinSession(data, socket) );
 
-  });
-
-  socket.on('joinSession', (data) => {
-
-    if (!(data.roomId in games)){
-      socket.emit('error', data.gameId +' is not active');
-    }
-    else if (games[data.roomId].players.includes(data.username)){
-      socket.emit('error', 'There is alread someone named '+data.username)
-    } else {
-      socket.join(data.roomId);
-      games[data.roomId].players.push(data.username);
-      socket.emit('success', 'successfully joined'+data.roomId);
-      socket.to(data.roomId).emit('joined', data.username)
-    }
-  });
-
-  socket.on('leaveSession', (data) => {
-    socket.leave(data.roomId)
-    if (!games[data.roomId]){}
-    else {
-      games[data.roomId].players.push(data.username);
-      socket.to(data.roomId).emit('left', data.username)
-    }
-  });
+  socket.on('leaveSession', (data) => leaveSession(data, socket) );
 
   socket.on('endSession', (data) => { }); // TODO:
 
-  socket.on('disconnect', () => console.log(socket.id+' disconnected'));
+  socket.on('success', (roomId) => { socket.emit(games[roomId].active) })
 
-  socket.on('userMove', (data) => {
-    socket.to(data.roomId).emit('move', {username:data.username, position:data.position})
+  socket.on('disconnect', () => disconnect(socket) );
+
+  socket.on('move', (data) => {
+
+    const { username, roomId } = data
+
+    socket.to(roomId).emit('moved', {username:username, game:games[roomId]})
+    console.log(username + ' is moving ');
+
   });
 
 });

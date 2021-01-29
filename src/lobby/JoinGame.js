@@ -1,8 +1,8 @@
 import { useEffect, useCallback } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import Naming from './util/Naming';
 
-const JoinGame = ({setRoomId, username, handleUserName, handleJoinGame}) => {
+const JoinGame = ({setRoomId, username, handleUserName, handleJoinGame, handleLogout}) => {
 
   const roomId = useLocation().pathname.substring(6);
 
@@ -25,7 +25,10 @@ const JoinGame = ({setRoomId, username, handleUserName, handleJoinGame}) => {
       id='userInput' onChange={handleUserName} onBlur={handleUserName}>
       </input>
       <button onClick={getRandomName}>Randomize</button>
-      <div><input type='submit' value='Join' onClick={handleJoinGame}/></div>
+      <div>
+        <Link to='/'>Leave</Link>
+        <button onClick={handleJoinGame}>Join</button>
+      </div>
     </div>
   )
 }

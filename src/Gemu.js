@@ -1,15 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { Route, BrowserRouter, Redirect, useLocation } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Route, BrowserRouter, Redirect } from 'react-router-dom';
 
 // Lobby Components
 import Lobby from './lobby/Lobby';
 import JoinGame from './lobby/JoinGame';
 
 // Game Components
-import Participant from './Participant';
-import Game from './game/Game';
+import Room from './room/Room'
 
-// Socket to communicate with the game server
+// Create a Socket to communicate with the game server
 const socket = require('socket.io-client')();
 
 const Gemu = () => {
@@ -20,6 +19,7 @@ const Gemu = () => {
   const [roomId, setRoomId] = useState('');
   const [clientSocket, setClientSocket] = useState(null);
   const [connectionError, setConnectionError] = useState('');
+  const [gameData, setGameData] = useState({});
 
   // Change to username
   const handleUserName = (event) => {
@@ -64,37 +64,45 @@ const Gemu = () => {
     setClientSocket(null);
   };
 
-  socket.on('error', (message) => { setClientSocket(null); setConnectionError(message)});
-  socket.on('success', () => setClientSocket(socket));
+  // Set error message and clear socket on failure
+  socket.on('error', (message) => {
+    setClientSocket(null);
+    setConnectionError(message);
+    setTimeout(() => {setConnectionError('')}, 3000);
+  });
+
+  // Set client socket on success
+  socket.on('success', (game) => {
+    setGameData(game);
+    setClientSocket(socket);
+  });
 
   // TODO: FORMAT ME
   const lobby = (
     <Lobby username={username} roomId={roomId} handleJoinGame={handleJoinGame}
       handleStartGame={handleStartGame} handleUserName={handleUserName}
-      handleRoomId={handleRoomId} connectionError={connectionError}/>
+      handleRoomId={handleRoomId}/>
   )
 
   // TODO: FORMAT ME
   const joinGame = (
-    <div>
-      <JoinGame username={username} setRoomId={setRoomId}
+    <JoinGame username={username} setRoomId={setRoomId}
         handleUserName={handleUserName} handleJoinGame={handleJoinGame}
-        />
-      {connectionError}
-    </div>
+        handleLogout={handleLogout}/>
   )
 
-  const game = (
-    <div className='gameContainer'>
-      <Game handleLogout={handleLogout} username={username} roomId={roomId}
-        clientSocket={clientSocket}/>
-    </div>
+  // TODO: FORMAT ME
+  const room = (
+    <Room clientSocket={clientSocket} roomId={roomId} username={username}
+      handleLogout={handleLogout} gameState={gameData} />
   )
 
   return (
+    <div>
+    <div className='connectionError'>{connectionError}</div>
     <BrowserRouter>
       <Route exact path='/'>
-        { clientSocket ? game : lobby}
+        { clientSocket ? room : lobby}
       </Route>
       <Route path={'/join/*'}>
         <div>
@@ -103,6 +111,7 @@ const Gemu = () => {
         </div>
       </Route>
     </BrowserRouter>
+  </div>
   )
 }
 
