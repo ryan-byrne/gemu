@@ -72,6 +72,23 @@ function leaveSession(data, socket){
 
 }
 
+function move(data, socket){
+
+  const { username, roomId, position } = data
+
+  if (!games[roomId]) { return } //  Ignore leftover instance
+
+  // Iterate through players
+  games[roomId].active.map( (player) => {
+    if ( player.username === username ) {
+      player['x'] = position.x;
+      player['y'] = position.y;
+    }
+  });
+  
+  socket.to(roomId).emit('moved', {username:username, game:games[roomId]})
+}
+
 function disconnect(socket){
 
   // Iterate through all rooms
@@ -103,13 +120,6 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => disconnect(socket) );
 
-  socket.on('move', (data) => {
-
-    const { username, roomId } = data
-
-    socket.to(roomId).emit('moved', {username:username, game:games[roomId]})
-    console.log(username + ' is moving ');
-
-  });
+  socket.on('move', (data) => { move(data, socket) } );
 
 });

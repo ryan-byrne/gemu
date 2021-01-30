@@ -1,0 +1,8 @@
+.playerContainer {
+  position: absolute;
+}
+
+.cameraCropper {
+  overflow: hidden;
+  border-radius: 10px;
+}

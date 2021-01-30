@@ -1,10 +1,12 @@
-import { React, useState, useEffect, useCallback } from 'react';
-import Player from './Player';
+import { React, useState } from 'react';
+import Controller from './Controller';
+import ErrorPage from '../error/ErrorPage';
 
 const Room = ({clientSocket, username, roomId, handleLogout, gameState}) => {
 
   const [message, setMessage] = useState('');
   const [gameData, setGameData] = useState(gameState);
+
   const playerArray = gameData.active.map(player => (
     <li key={player.id}>{player.username} X:{player.x} Y:{player.y}</li>
   ));
@@ -26,27 +28,16 @@ const Room = ({clientSocket, username, roomId, handleLogout, gameState}) => {
   // TODO: Allow for movement to be tracked by others
   // When someone moves
   clientSocket.on('moved', (data) => {
-    console.log(data.username + 'moved to X: '+data.position.x+" Y: "+data.position.y);
+    const { username, game } = data;
+    console.log(game);
+    setGameData(game)
   });
-
-  const error = (
-    <div>Connection to Server lost</div>
-  )
-
-  const normal = (
-    <div>
-      <div><b>{username}'s</b> view of <b>{roomId}</b></div>
-      <div>Message: {message}</div>
-      <div>Current Players:</div>
-      {playerArray}
-      <Player clientSocket={clientSocket} />
-      <button onClick={handleLogout}>Leave</button>
-    </div>
-  )
 
   return (
     <div>
-      {!clientSocket.connected ? error : normal}
+      <div>{message}</div>
+      {playerArray}
+      <Controller clientSocket={clientSocket} username={username} roomId={roomId}/>
     </div>
 
   )

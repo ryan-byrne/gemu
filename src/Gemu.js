@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { Route, BrowserRouter, Redirect } from 'react-router-dom';
 
+// Error Page
+import ErrorPage from './error/ErrorPage';
+
 // Lobby Components
 import Lobby from './lobby/Lobby';
 import JoinGame from './lobby/JoinGame';
@@ -99,19 +102,19 @@ const Gemu = () => {
 
   return (
     <div>
-    <div className='connectionError'>{connectionError}</div>
-    <BrowserRouter>
-      <Route exact path='/'>
-        { clientSocket ? room : lobby}
-      </Route>
-      <Route path={'/join/*'}>
-        <div>
-          { clientSocket ? <Redirect to='/'/> : null }
-          {joinGame}
-        </div>
-      </Route>
-    </BrowserRouter>
-  </div>
+      <div className='connectionError'>{connectionError}</div>
+      <BrowserRouter>
+        <Route exact path='/'>
+          { clientSocket ? room : lobby}
+        </Route>
+        <Route path={'/join/*'}>
+          <div>
+            { clientSocket ? <Redirect to='/'/> : null }
+            {joinGame}
+          </div>
+        </Route>
+      </BrowserRouter>
+    </div>
   )
 }
 
