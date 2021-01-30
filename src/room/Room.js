@@ -1,5 +1,6 @@
 import { React, useState } from 'react';
 import Controller from './Controller';
+import Player from './Player';
 import ErrorPage from '../error/ErrorPage';
 
 const Room = ({clientSocket, username, roomId, handleLogout, gameState}) => {
@@ -7,9 +8,16 @@ const Room = ({clientSocket, username, roomId, handleLogout, gameState}) => {
   const [message, setMessage] = useState('');
   const [gameData, setGameData] = useState(gameState);
 
-  const playerArray = gameData.active.map(player => (
-    <li key={player.id}>{player.username} X:{player.x} Y:{player.y}</li>
-  ));
+  const playerArray = gameData.active.map(player => {
+    if (player.username === username) {}
+    else {
+      return (
+        <Player key={player.id} username={player.username}
+          position={{x:player.x, y:player.y}}
+          />
+      )
+    }
+  });
 
   // WHen someone joins
   clientSocket.on('joined', (data) => {
@@ -29,15 +37,14 @@ const Room = ({clientSocket, username, roomId, handleLogout, gameState}) => {
   // When someone moves
   clientSocket.on('moved', (data) => {
     const { username, game } = data;
-    console.log(game);
     setGameData(game)
   });
 
   return (
     <div>
-      <div>{message}</div>
+      <div>{roomId}: {message}</div>
       {playerArray}
-      <Controller clientSocket={clientSocket} username={username} roomId={roomId}/>
+      <Controller username={username} roomId={roomId} clientSocket={clientSocket}/>
     </div>
 
   )

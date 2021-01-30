@@ -1,17 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import './style/controller.css';
 import Webcam from 'react-webcam';
-
-const Player = () => {
-  return (
-    <Webcam height={window.innerHeight/10}/>
-  )
-}
+import Player from './Player';
 
 const Controller = ({clientSocket, username, roomId}) => {
 
   const [dynamics, setDynamics] = useState(
-    {x:0,y:0,velX:0,velY:0,speed:2,friction:0.8,keys:[]}
+    {x:0,y:0,velX:0,velY:0,speed:2,friction:0.2,keys:[]}
   )
 
   const keyListener = (event) => {
@@ -29,10 +23,8 @@ const Controller = ({clientSocket, username, roomId}) => {
       velY *= friction; y += velY; velX *= friction; x += velX;
       if (x >= window.innerWidth) { x = 295 } else if (x <= 5) { x = 5 }
       if (y > window.innerHeight) { y = 295 } else if (y <= 5) { y = 5 }
+      clientSocket.emit('move',{username:username,roomId:roomId,position:{x:x,y:y}});
       setDynamics({x:x,y:y,velX:velX,velY:velY,speed:2,friction:0.98,keys:keys});
-      clientSocket.emit('move', {
-        username:username, roomId:roomId, position: {x:x,y:y}
-      });
       if (interval < 2000 ) { requestAnimationFrame(update) }
     });
 
@@ -49,12 +41,9 @@ const Controller = ({clientSocket, username, roomId}) => {
   }, [keyListener]);
 
   return (
-    <div className='playerContainer' style={{top:dynamics.y, left:dynamics.x}}>
-      <div>{username} {roomId}</div>
-      <div className='cameraCropper'>
-        <Player/>
-      </div>
-    </div>
+
+    <Player username={username} position={{x:dynamics.x,y:dynamics.y}} />
+
   )
 }
 
