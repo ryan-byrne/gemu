@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import Naming from './util/Naming';
 import './style/lobby.css';
 
-import shuffle from './img/shuffle.png';
+import shuffle from './style/shuffle.png';
 
 const Lobby = ({
     username, roomId, handleUserName, handleRoomId, handleStartGame, handleJoinGame
@@ -44,7 +44,7 @@ const Lobby = ({
           <input className='menuInput' value={username} type='text'
           id='user' onChange={handleUserName} onBlur={handleUserName}
           placeholder='Your Name'/>
-        <img className='randomButton' onClick={getRandomName} src={shuffle} height='20px'/>
+          <img className='randomButton' onClick={getRandomName} src={shuffle} height='20px'/>
         </div>
         <div className='subMenuRow'>
           <input className='menuInput' value={roomId} maxLength={6}
