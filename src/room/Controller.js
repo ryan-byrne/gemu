@@ -5,7 +5,7 @@ import Player from './Player';
 const Controller = ({clientSocket, username, roomId}) => {
 
   const [dynamics, setDynamics] = useState(
-    {x:0,y:0,velX:0,velY:0,speed:2,friction:0.2,keys:[]}
+    {x:200,y:0,velX:0,velY:0,speed:2,friction:0.2,keys:[]}
   )
 
   const keyListener = (event) => {

@@ -1,8 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import Gemu from './Gemu';
-import TestApp from './TestApp';
+import Gemu from './app/Gemu';
 import reportWebVitals from './reportWebVitals';
 
 

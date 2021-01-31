@@ -2,6 +2,8 @@ import React, { useState, useCallback } from 'react';
 import Naming from './util/Naming';
 import './style/lobby.css';
 
+import shuffle from './img/shuffle.png';
+
 const Lobby = ({
     username, roomId, handleUserName, handleRoomId, handleStartGame, handleJoinGame
   }) => {
@@ -14,8 +16,7 @@ const Lobby = ({
     var result = '';
     const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     for (var i = 6; i > 0; --i) result += chars[Math.floor(Math.random() * chars.length)];
-    event.target.parentElement.children[0].className = 'goodSubMenuItem';
-    handleRoomId(result);
+    handleRoomId(event, result);
   }, [handleRoomId]);
 
   const getRandomName = useCallback( event => {
@@ -23,8 +24,7 @@ const Lobby = ({
     var noun = Naming.nouns[Math.floor(Math.random() * Naming.adjectives.length)];
     adj = adj.charAt(0).toUpperCase() + adj.slice(1);
     noun = noun.charAt(0).toUpperCase() + noun.slice(1);
-    event.target.parentElement.children[0].className = 'goodSubMenuItem';
-    handleUserName(adj+noun);
+    handleUserName(event, adj+noun);
   }, [handleUserName]);
 
   const mainMenu = (
@@ -39,34 +39,37 @@ const Lobby = ({
   var subMenu;
   if (selected === 0) {
     subMenu = (
-      <div className='joinGame'>
-        <div>
-          <input className='subMenuItem' value={username} type='text'
-          id='userInput' onChange={handleUserName} onBlur={handleUserName}/>
-        <button onClick={getRandomName}>Randomize</button>
+      <div className='subMenu'>
+        <div className='subMenuRow'>
+          <input className='menuInput' value={username} type='text'
+          id='user' onChange={handleUserName} onBlur={handleUserName}
+          placeholder='Your Name'/>
+        <img className='randomButton' onClick={getRandomName} src={shuffle} height='20px'/>
         </div>
-        <div>
-          <input className='subMenuItem' value={roomId} maxLength={6}
-          type='text' id='roomInput' onChange={handleRoomId} onBlur={handleRoomId}/>
+        <div className='subMenuRow'>
+          <input className='menuInput' value={roomId} maxLength={6}
+          type='text' id='roomId' onChange={handleRoomId} onBlur={handleRoomId}
+          placeholder='Room ID'/>
         </div>
-        <div><input type='submit' value='Join' onClick={handleJoinGame}/></div>
+        <button className='menuButton' onClick={handleJoinGame}>Join</button>
       </div>
     )
   }
   else if (selected === 1) {
     subMenu = (
-      <div className='startGame'>
-        <div>
-          <input className='subMenuItem' value={username} type='text'
-          id='userInput' onChange={handleUserName} onBlur={handleUserName}/>
-        <button onClick={getRandomName}>Randomize</button>
+      <div className='subMenu'>
+        <div className='subMenuRow'>
+          <input className='menuInput' value={username} type='text'
+          id='user' onChange={handleUserName} onBlur={handleUserName}
+          placeholder='Your Name'/>
+        <img className='randomButton' onClick={getRandomName} src={shuffle} height='20px'/>
         </div>
-        <div>
-          <input className='subMenuItem' value={roomId} type='text' maxLength={6}
-          id='roomInput' onChange={handleRoomId} onBlur={handleRoomId}/>
-        <button onClick={getRandomRoom}>Randomize</button>
+        <div className='subMenuRow'>
+          <input id='roomId' className='menuInput' value={roomId} type='text' maxLength={6}
+          placeholder='Room ID' onChange={handleRoomId} onBlur={handleRoomId}/>
+          <img className='randomButton' onClick={getRandomRoom} src={shuffle} height='20px'/>
         </div>
-        <div><input type='submit' value='Start' onClick={handleStartGame}/></div>
+        <button className='menuButton' onClick={handleStartGame}>Start</button>
       </div>
     )
   }
@@ -76,6 +79,7 @@ const Lobby = ({
 
   return (
     <div className='menuContainer'>
+      <div className='menuIcon'></div>
       {mainMenu}
       {subMenu}
     </div>

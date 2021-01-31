@@ -1,9 +1,10 @@
 const app = require('express')();
 const PORT = 3001;
 const server = app.listen(PORT, () => console.log(`Listening on 3001`));
-const io = require('socket.io')(server);
+//const io = require('socket.io')(server);
 
-// TODO: Open game add sockets for players
+// TODO: Game freezes up if too many players are moving
+// Doesn't seem to affect across rooms
 
 var games = {}
 
@@ -85,7 +86,7 @@ function move(data, socket){
       player['y'] = position.y;
     }
   });
-  
+
   socket.to(roomId).emit('moved', {username:username, game:games[roomId]})
 }
 

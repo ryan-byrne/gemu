@@ -1,12 +1,13 @@
 import { React, useState } from 'react';
 import Controller from './Controller';
 import Player from './Player';
-import ErrorPage from '../error/ErrorPage';
 
 const Room = ({clientSocket, username, roomId, handleLogout, gameState}) => {
 
   const [message, setMessage] = useState('');
   const [gameData, setGameData] = useState(gameState);
+
+  // TODO: Room freezes up if too many messages are sent
 
   const playerArray = gameData.active.map(player => {
     if (player.username === username) {}
@@ -43,6 +44,7 @@ const Room = ({clientSocket, username, roomId, handleLogout, gameState}) => {
   return (
     <div>
       <div>{roomId}: {message}</div>
+      <button onClick={handleLogout} >Leave</button>
       {playerArray}
       <Controller username={username} roomId={roomId} clientSocket={clientSocket}/>
     </div>
