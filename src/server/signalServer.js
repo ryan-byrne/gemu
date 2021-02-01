@@ -14,7 +14,10 @@ function startSession(data, socket) {
     // Create + join room
     socket.join(roomId);
     // Send success message
-    socket.emit('success', 'Successfully started '+roomId);
+    socket.emit('success', {
+      peers:Array.from(io.sockets.adapter.rooms.get(roomId)),
+      message:'Successfully connected to: '+roomId
+    });
     console.log(username + ' started ' + roomId + ' using socket: '+socket.id);
   }
 
@@ -31,8 +34,12 @@ function joinSession(data, socket){
   else if (!socket) {}
   else {
     socket.join(roomId);
-    socket.emit('success', 'Successfully joined '+roomId);
-    socket.to(roomId).emit('joined', username);
+    console.log(io.sockets.adapter.rooms.get(roomId));
+    socket.emit('success', {
+      message:'Successfully joined '+roomId,
+      peers:Array.from(io.sockets.adapter.rooms.get(roomId))
+    });
+    socket.to(roomId).emit('joined', {username:username,id:socket.id});
     console.log(username + ' joined ' + roomId);
   }
 }

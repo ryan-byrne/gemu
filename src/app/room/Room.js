@@ -1,17 +1,17 @@
 import { React, useState, useEffect, useCallback } from 'react';
 import Player from './Player';
 
-const Room = ({clientSocket, username, roomId, handleLogout, handleMessage}) => {
+const Room = ({client, username, roomId, handleLogout, handleMessage}) => {
 
-  const [dynamics, setDynamics] = useState({
-    x:200,y:0,velX:0,velY:0,speed:2,friction:0.2,keys:[]
-  });
-  const height = Math.max(window.innerWidth*3/20, 100)
-  const [playerSize, setPlayerSize] = useState({
-    height:height, width:height*4/3
-  });
+  const [dynamics, setDynamics] = useState({x:200,y:0,velX:0,velY:0,speed:2,friction:0.2,keys:[]});
+  const height = Math.max(window.innerWidth*3/20, 100);
+  const [playerSize, setPlayerSize] = useState({height:height, width:height*4/3});
+  const [peers, setPeers] = useState(client.peers);
 
-  const keyListener = (event) => {
+  const keyListener = useCallback((event) => {
+
+    if ( event.keyCode < 37 || event.keyCode > 40) { return }
+
     let start = Date.now();
     var { x, y, velX, velY, speed, friction, keys } = dynamics;
     const typed = event.type === 'keydown' ? true : false
@@ -31,7 +31,7 @@ const Room = ({clientSocket, username, roomId, handleLogout, handleMessage}) => 
       if (interval < 2000 ) { requestAnimationFrame(update) }
     });
 
-  };
+  }, [setDynamics, dynamics]);
 
   const handleResize = useCallback((event) => {
 
@@ -40,14 +40,21 @@ const Room = ({clientSocket, username, roomId, handleLogout, handleMessage}) => 
 
   }, [setPlayerSize]);
 
+  const handleJoined = useCallback((data)=> {
+    handleMessage(data.username+' has joined','blue');
+    setPeers([...peers, data.id]);
+  }, [handleMessage, setPeers, peers]);
+
+  const handleLeft = useCallback((data)=> {
+    handleMessage(data.username+' has left','blue');
+    setPeers(peers.slice(peers.indexOf(data.id),1));
+  }, [handleMessage, setPeers, peers]);
+
   // Establish event listeners
   useEffect(() => {
-    clientSocket.on('joined', (user) => {
-      handleMessage(user+' has joined','blue');
-    });
-    clientSocket.on('left', (user) => {
-      handleMessage(user+' has left','blue');
-    });
+
+    client.socket.on('joined', (data) => handleJoined(data));
+    client.socket.on('left', (data) => handleLeft(data));
 
     window.addEventListener('resize', handleResize, true);
     window.addEventListener('keyup', keyListener, true);
@@ -56,10 +63,12 @@ const Room = ({clientSocket, username, roomId, handleLogout, handleMessage}) => 
       window.removeEventListener("keyup", keyListener, true);
       window.removeEventListener('keydown', keyListener, true);
     }
-  }, [keyListener, handleMessage, handleResize]);
+  });
 
   return (
     <div>
+      <div>{roomId}</div>
+      {peers.map((peer,i)=><div key={i}>{peer}</div>)}
       <div className='menuButton' onClick={handleLogout}>Leave</div>
       <Player username={username} playerSize={playerSize}/>
     </div>

@@ -17,7 +17,7 @@ const App = () => {
 
   const [username, setUsername] = useState('');
   const [roomId, setRoomId] = useState('');
-  const [clientSocket, setClientSocket] = useState(null);
+  const [client, setClient] = useState({});
   const [message, setMessage] = useState({});
 
   // Change to username
@@ -49,17 +49,14 @@ const App = () => {
 
   };
 
-  // User starts room
-  const handleStartGame = useCallback((event) => {
-    if (validateEntries()) { socket.emit('startSession', {username:username, roomId:roomId}) }
-  });
+  const handleMessage = useCallback((message, color) => {
+    setMessage({text:message,color:color});
+    setTimeout(()=> {
+      setMessage({});
+    },2000);
+  }, [setMessage]);
 
-  // User joins room
-  const handleJoinGame = useCallback((event) => {
-    if (validateEntries()) { socket.emit('joinSession', {username:username, roomId:roomId}) }
-  });
-
-  const validateEntries = () => {
+  const validateEntries = useCallback((event) => {
     var valid = true;
     if (!socket.connected) {
       handleMessage('Unable to connect to socket', 'red');
@@ -74,46 +71,45 @@ const App = () => {
       valid=false
     }
     return valid;
-  }
+  }, [handleMessage, roomId, username])
+
+  // User starts room
+  const handleStartGame = useCallback((event) => {
+    if (validateEntries()) { socket.emit('startSession', {username:username, roomId:roomId}) }
+  }, [username, roomId, validateEntries]);
+
+  // User joins room
+  const handleJoinGame = useCallback((event) => {
+    if (validateEntries()) { socket.emit('joinSession', {username:username, roomId:roomId}) }
+  },[username, roomId, validateEntries]);
 
   // User leaves room
   const handleLogout = (event) => {
     socket.emit('leaveSession', {username:username, roomId:roomId});
     setMessage({});
-    setClientSocket(null);
+    setClient({socket:null,peers:[]});
   };
-
-  const handleMessage = (message, color) => {
-    setMessage({text:message,color:color});
-    setTimeout(()=> {
-      setMessage({});
-    },2000);
-  };
-
-  const handleSuccess = useCallback((message) => {
-    handleMessage(message, 'green');
-    setClientSocket(socket);
-  }, [setClientSocket]);
-
-  const handleError = useCallback((message) => {
-    handleMessage(message, 'red');
-    setClientSocket(null);
-  },[setClientSocket]);
 
   useEffect( () => {
     // Set error message and clear socket on failure
-    socket.on('error', (message) => handleError(message) );
+    socket.on('error', (data) => {
+      handleMessage(data.message, 'red');
+      setClient({socket:null, peers:[]})
+    });
     // Set client socket on success
-    socket.on('success', (message) => handleSuccess(message) );
-  }, [handleError, handleSuccess])
+    socket.on('success', (data) => {
+      handleMessage(data.message, 'green');
+      setClient({socket:socket, peers:data.peers})
+    });
+  }, [setClient, handleMessage])
 
   return (
     <div className='appContainer'>
       <div className='messageTicker' style={{color:message.color}}>{message.text}</div>
       <BrowserRouter>
         <Route exact path='/'>
-          { clientSocket ?
-            <Room clientSocket={clientSocket} roomId={roomId} username={username}
+          { client.socket ?
+            <Room client={client} roomId={roomId} username={username}
               handleLogout={handleLogout} handleMessage={handleMessage}/>
             :
             <Lobby username={username} roomId={roomId} handleJoinGame={handleJoinGame}
@@ -123,7 +119,7 @@ const App = () => {
         </Route>
         <Route path='/join/*'>
           <div>
-            { clientSocket ? <Redirect to='/'/> : null }
+            { client.socket ? <Redirect to='/'/> : null }
             <JoinGame username={username} setRoomId={setRoomId}
                 handleUserName={handleUserName} handleJoinGame={handleJoinGame}
                 handleLogout={handleLogout}/>
