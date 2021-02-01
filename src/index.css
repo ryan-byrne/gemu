@@ -1,7 +1,18 @@
+/*
+
+CAD2C5
+84A98C
+52796F
+354F52
+2F3E46
+
+*/
+
 html, body, #root {
   height: 100%;
   margin: 0;
   overflow: hidden;
+  background-color: #CAD2C5;
 }
 
 body {

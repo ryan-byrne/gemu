@@ -6,12 +6,14 @@ import vid from './img/video.png';
 import unvid from './img/novideo.png';
 import noface from './img/noface.png';
 
-const Player = ({username, position}) => {
+import './style/player.css'
+
+const Player = ({username, playerSize}) => {
+
+  const size = {height:playerSize.height, width:playerSize.width}
 
   return (
-    <div className='playerContainer' style={{top:position.y,left:position.x}}>
-      <div style={{height:'100px',width:'100px'}}>{username}</div>
-    </div>
+    <div className='playerContainer' style={size}>{username}</div>
   )
 }
 

@@ -1,34 +1,68 @@
-import { React, useState } from 'react';
-import Controller from './player/Controller';
-import Player from './player/Player';
+import { React, useState, useEffect, useCallback } from 'react';
+import Player from './Player';
 
-const Room = ({clientSocket, username, roomId, handleLogout, setMessages, messages}) => {
+const Room = ({clientSocket, username, roomId, handleLogout, handleMessage}) => {
 
-  // TODO: Room freezes up if too many messages are sent
-
-  // WHen someone joins
-  clientSocket.on('joined', (user) => {
-    setMessages([...messages, {message:user+' has joined',color:'blue'}]);
+  const [dynamics, setDynamics] = useState({
+    x:200,y:0,velX:0,velY:0,speed:2,friction:0.2,keys:[]
+  });
+  const height = Math.max(window.innerWidth*3/20, 100)
+  const [playerSize, setPlayerSize] = useState({
+    height:height, width:height*4/3
   });
 
-  // When someone leaves
-  clientSocket.on('left', (user) => {
-    setMessages([...messages, {message:user+' has left',color:'blue'}]);
-  });
+  const keyListener = (event) => {
+    let start = Date.now();
+    var { x, y, velX, velY, speed, friction, keys } = dynamics;
+    const typed = event.type === 'keydown' ? true : false
+    keys[event.keyCode] = typed;
 
-  // TODO: Allow for movement to be tracked by others
-  // When someone moves
-  clientSocket.on('moved', (data) => {
-    const { username, game } = data;
-  });
+    let timer = requestAnimationFrame( function update(){
+      let interval = Date.now() - start;
+      if ( keys[38] ) { if (velY > -speed) { velY-- } }
+      if (keys[40]) { if (velY < speed) { velY++ } }
+      if (keys[39]) { if (velX < speed) { velX++ } }
+      if (keys[37]) { if (velX > -speed) { velX-- } }
+      velY *= friction; y += velY; velX *= friction; x += velX;
+      if (x >= window.innerWidth) { x = 295 } else if (x <= 5) { x = 5 }
+      if (y > window.innerHeight) { y = 295 } else if (y <= 5) { y = 5 }
+      //clientSocket.emit('move',{username:username,roomId:roomId,position:{x:x,y:y}});
+      setDynamics({x:x,y:y,velX:velX,velY:velY,speed:2,friction:0.98,keys:keys});
+      if (interval < 2000 ) { requestAnimationFrame(update) }
+    });
+
+  };
+
+  const handleResize = useCallback((event) => {
+
+    const height = Math.max(window.innerWidth*3/20, 100)
+    setPlayerSize({height:height, width:height*4/3});
+
+  }, [setPlayerSize]);
+
+  // Establish event listeners
+  useEffect(() => {
+    clientSocket.on('joined', (user) => {
+      handleMessage(user+' has joined','blue');
+    });
+    clientSocket.on('left', (user) => {
+      handleMessage(user+' has left','blue');
+    });
+
+    window.addEventListener('resize', handleResize, true);
+    window.addEventListener('keyup', keyListener, true);
+    window.addEventListener('keydown', keyListener, true);
+    return () => {
+      window.removeEventListener("keyup", keyListener, true);
+      window.removeEventListener('keydown', keyListener, true);
+    }
+  }, [keyListener, handleMessage, handleResize]);
 
   return (
     <div>
-      <div>{roomId}</div>
-      <button onClick={handleLogout} >Leave</button>
-      <Controller username={username} roomId={roomId} clientSocket={clientSocket}/>
+      <div className='menuButton' onClick={handleLogout}>Leave</div>
+      <Player username={username} playerSize={playerSize}/>
     </div>
-
   )
 }
 

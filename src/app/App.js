@@ -30,7 +30,7 @@ const App = () => {
     const cn = name.length > 0 ? 'goodInput' : 'badInput';
 
     entry.className = cn;
-    entry.style.width = (Math.max(12,name.length*1.5)).toString()+'%';
+    entry.style.width = (Math.max(12,name.length*4)).toString()+'%';
     setUsername(name);
   };
 
@@ -44,7 +44,7 @@ const App = () => {
     const cn = id.length === 6 ? 'goodInput' : 'badInput';
 
     entry.className = cn;
-    entry.style.width = (Math.max(12,id.length*1.5)).toString()+'%';
+    entry.style.width = (Math.max(12,id.length*4)).toString()+'%';
     setRoomId(id.toUpperCase());
 
   };
@@ -114,7 +114,7 @@ const App = () => {
         <Route exact path='/'>
           { clientSocket ?
             <Room clientSocket={clientSocket} roomId={roomId} username={username}
-              handleLogout={handleLogout} setMessage={setMessage}/>
+              handleLogout={handleLogout} handleMessage={handleMessage}/>
             :
             <Lobby username={username} roomId={roomId} handleJoinGame={handleJoinGame}
               handleStartGame={handleStartGame} handleUserName={handleUserName}
