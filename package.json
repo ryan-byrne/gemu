@@ -17,7 +17,8 @@
     "react-webcam": "^5.2.2",
     "socket.io": "^3.1.0",
     "socket.io-client": "^3.1.0",
-    "web-vitals": "^0.2.4"
+    "web-vitals": "^0.2.4",
+    "webrtc-adapter": "^7.7.0"
   },
   "scripts": {
     "predeploy": "npm run build",
@@ -27,7 +28,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
-  "proxy":"http://localhost:3001/",
+  "proxy": "http://localhost:3001/",
   "eslintConfig": {
     "extends": [
       "react-app",

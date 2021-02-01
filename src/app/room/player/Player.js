@@ -1,5 +1,4 @@
 import React from 'react';
-import './style/player.css'
 
 import mute from './img/mute.png';
 import unmute from './img/unmute.png';

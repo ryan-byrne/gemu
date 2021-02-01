@@ -17,6 +17,7 @@ CAD2C5
 }
 
 .menuIcon {
+  content: url('icon.png');
   height:100px;
   opacity: 0.5;
   margin-left: auto;
@@ -46,7 +47,7 @@ CAD2C5
 }
 
 .subMenuRow {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 .menuButton {

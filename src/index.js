@@ -1,13 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import Gemu from './app/Gemu';
+//import Test from './app/Test';
+import App from './app/App';
 import reportWebVitals from './reportWebVitals';
 
 
 ReactDOM.render(
   <React.StrictMode>
-    <Gemu />
+    <App />
   </React.StrictMode>,
   document.getElementById('root')
 );
