@@ -1,44 +1,10 @@
-import { React, useState, useEffect, useCallback } from 'react';
-import Player from './Player';
+import { useState, useEffect, useCallback } from 'react';
 
-const Room = ({client, username, roomId, handleLogout, handleMessage}) => {
+import Player from './player/Player';
 
-  const [dynamics, setDynamics] = useState({x:200,y:0,velX:0,velY:0,speed:2,friction:0.2,keys:[]});
-  const height = Math.max(window.innerWidth*3/20, 100);
-  const [playerSize, setPlayerSize] = useState({height:height, width:height*4/3});
+const Connection = ({client, handleMessage}) => {
+
   const [peers, setPeers] = useState(client.peers);
-
-  const keyListener = useCallback((event) => {
-
-    if ( event.keyCode < 37 || event.keyCode > 40) { return }
-
-    let start = Date.now();
-    var { x, y, velX, velY, speed, friction, keys } = dynamics;
-    const typed = event.type === 'keydown' ? true : false
-    keys[event.keyCode] = typed;
-
-    let timer = requestAnimationFrame( function update(){
-      let interval = Date.now() - start;
-      if ( keys[38] ) { if (velY > -speed) { velY-- } }
-      if (keys[40]) { if (velY < speed) { velY++ } }
-      if (keys[39]) { if (velX < speed) { velX++ } }
-      if (keys[37]) { if (velX > -speed) { velX-- } }
-      velY *= friction; y += velY; velX *= friction; x += velX;
-      if (x >= window.innerWidth) { x = 295 } else if (x <= 5) { x = 5 }
-      if (y > window.innerHeight) { y = 295 } else if (y <= 5) { y = 5 }
-      //clientSocket.emit('move',{username:username,roomId:roomId,position:{x:x,y:y}});
-      setDynamics({x:x,y:y,velX:velX,velY:velY,speed:2,friction:0.98,keys:keys});
-      if (interval < 2000 ) { requestAnimationFrame(update) }
-    });
-
-  }, [setDynamics, dynamics]);
-
-  const handleResize = useCallback((event) => {
-
-    const height = Math.max(window.innerWidth*3/20, 100)
-    setPlayerSize({height:height, width:height*4/3});
-
-  }, [setPlayerSize]);
 
   const handleJoined = useCallback((data)=> {
     handleMessage(data.username+' has joined','blue');
@@ -47,30 +13,88 @@ const Room = ({client, username, roomId, handleLogout, handleMessage}) => {
 
   const handleLeft = useCallback((data)=> {
     handleMessage(data.username+' has left','blue');
-    setPeers(peers.slice(peers.indexOf(data.id),1));
+    setPeers(peers.filter(peer=>peer!==data.id))
+    console.log(peers);
   }, [handleMessage, setPeers, peers]);
 
-  // Establish event listeners
   useEffect(() => {
-
     client.socket.on('joined', (data) => handleJoined(data));
     client.socket.on('left', (data) => handleLeft(data));
-
-    window.addEventListener('resize', handleResize, true);
-    window.addEventListener('keyup', keyListener, true);
-    window.addEventListener('keydown', keyListener, true);
-    return () => {
-      window.removeEventListener("keyup", keyListener, true);
-      window.removeEventListener('keydown', keyListener, true);
-    }
   });
 
   return (
     <div>
-      <div>{roomId}</div>
       {peers.map((peer,i)=><div key={i}>{peer}</div>)}
+    </div>
+  )
+
+}
+
+const Room = ({client, username, roomId, handleLogout, handleMessage}) => {
+
+  const [keys, setKeys] = useState([]);
+  const height = Math.max(window.innerWidth*3/20, 125);
+  const [player, setPlayer] = useState({
+    size:{ height:height, width:height*4/3},
+    dynamics:{x:200,y:0,velX:0,velY:0,speed:2,friction:0.2}
+  })
+
+  const handleKey = useCallback((event) => {
+
+    if ( event.keyCode < 37 || event.keyCode > 40) { return }
+
+    var {x, y, velY, velX, friction, speed} = player.dynamics;
+
+    let start = Date.now();
+    var pressedKeys = keys;
+    const typed = event.type === 'keydown' ? true : false
+    pressedKeys[event.keyCode] = typed;
+
+    requestAnimationFrame( function update(){
+      let interval = Date.now() - start;
+      if ( pressedKeys[38] ) { if (velY > -speed) { velY-- } }
+      if (pressedKeys[40]) { if (velY < speed) { velY++ } }
+      if (pressedKeys[39]) { if (velX < speed) { velX++ } }
+      if (pressedKeys[37]) { if (velX > -speed) { velX-- } }
+      velY *= friction; y += velY; velX *= friction; x += velX;
+      if (x >= window.innerWidth) { x = 295 } else if (x <= 5) { x = 5 }
+      if (y > window.innerHeight) { y = 295 } else if (y <= 5) { y = 5 }
+      //clientSocket.emit('move',{username:username,roomId:roomId,position:{x:x,y:y}});
+      setPlayer({...player, dynamics: {
+        x:x,y:y,velX:velX,velY:velY,speed:2,friction:0.98
+      }});
+      setKeys(pressedKeys);
+      if (interval < 2000 ) { requestAnimationFrame(update) }
+    });
+
+  }, [keys, player]);
+
+  const handleResize = useCallback((event) => {
+
+    const height = Math.max(window.innerWidth*3/20, 125)
+    setPlayer({...player, size:{
+      height:height, width:height*4/3
+    }});
+
+  }, [player]);
+
+  useEffect(() => {
+    window.addEventListener('keyup', handleKey, true);
+    window.addEventListener('keydown', handleKey, true);
+    window.addEventListener('resize', handleResize, true);
+    return () => {
+      window.removeEventListener("keyup", handleKey, true);
+      window.removeEventListener('keydown', handleKey, true);
+      window.removeEventListener('resize', handleResize, true);
+    }
+  })
+
+  return (
+    <div>
+      <div>{roomId}</div>
       <div className='menuButton' onClick={handleLogout}>Leave</div>
-      <Player username={username} playerSize={playerSize}/>
+      <Connection client={client} handleMessage={handleMessage}/>
+      <Player size={player.size}/>
     </div>
   )
 }

@@ -34,7 +34,6 @@ function joinSession(data, socket){
   else if (!socket) {}
   else {
     socket.join(roomId);
-    console.log(io.sockets.adapter.rooms.get(roomId));
     socket.emit('success', {
       message:'Successfully joined '+roomId,
       peers:Array.from(io.sockets.adapter.rooms.get(roomId))
@@ -51,7 +50,7 @@ function leaveSession(data, socket){
   if (!io.sockets.adapter.rooms.has(roomId)) { } //  Ignore leftover instance
   else {
     // Broadcast update
-    socket.to(roomId).emit('left', username);
+    socket.to(roomId).emit('left', {username:username,id:socket.id});
     console.log(username + ' left ' + roomId);
   }
 

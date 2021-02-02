@@ -1,0 +1,64 @@
+/*
+
+CAD2C5
+84A98C
+52796F
+354F52
+2F3E46
+
+*/
+
+.playerContainer {
+  margin: 0;
+  position: absolute;
+  background-color: #84A98C;
+  color: white;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  vertical-align: middle;
+}
+
+.mediaButtonContainer {
+  position: absolute;
+  top: 15%;
+}
+
+.mediaButtons {
+  max-height: 30px;
+  max-width: 30px;
+  height: auto;
+  width:auto;
+  cursor: pointer;
+  opacity: 0.2;
+  margin-left: 5px;
+}
+
+.arrowButton {
+  max-height: 20px;
+  border: 1px solid #354F52;
+  opacity: 0.2;
+  cursor: pointer;
+}
+
+.mediaButtons:hover, .arrowButton:hover {
+  transition: opacity 1.0s;
+  -webkit-transition: opacity 1.0s;
+  opacity: 1;
+}
+
+.mediaButtonRow {
+  display: flex;
+  align-items: center;
+  margin-top:20%;
+}
+
+.popoutSelect {
+  position: absolute;
+  right: 100%;
+}
+
+.webcamContainer {
+  height: 100%;
+  width: 100%;
+}

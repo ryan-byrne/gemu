@@ -92,8 +92,8 @@ const App = () => {
 
   useEffect( () => {
     // Set error message and clear socket on failure
-    socket.on('error', (data) => {
-      handleMessage(data.message, 'red');
+    socket.on('error', (message) => {
+      handleMessage(message, 'red');
       setClient({socket:null, peers:[]})
     });
     // Set client socket on success

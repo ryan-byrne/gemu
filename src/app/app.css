@@ -28,7 +28,7 @@ CAD2C5
 
 .messageTicker {
   position: absolute;
+  right:0;
+  top:0;
   text-align: right;
-  width: 100%;
-  z-index: 1;
 }
