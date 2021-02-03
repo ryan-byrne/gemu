@@ -10,8 +10,8 @@ CAD2C5
 
 .playerContainer {
   margin: 0;
+  padding: 0;
   position: absolute;
-  background-color: #84A98C;
   color: white;
   top: 50%;
   left: 50%;
@@ -21,7 +21,7 @@ CAD2C5
 
 .mediaButtonContainer {
   position: absolute;
-  top: 15%;
+  z-index: 1;
 }
 
 .mediaButtons {
@@ -59,6 +59,16 @@ CAD2C5
 }
 
 .webcamContainer {
-  height: 100%;
-  width: 100%;
+  position: absolute;
+  margin: 0;
+  border-radius: 10%;
+  transform: rotateY(180deg);
+  -webkit-transform:rotateY(180deg); /* Safari and Chrome */
+  -moz-transform:rotateY(180deg); /* Firefox */
+}
+
+.audioVisualizer {
+  position: relative;
+  margin-left: 10%;
+  margin-right: 10%;
 }

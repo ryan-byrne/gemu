@@ -1,33 +1,27 @@
 import {useRef, useState, useEffect} from 'react';
-import adapter from 'webrtc-adapter';
-
-const GetUserMedia = () => {
-
-  const [mediaStream, setMediaStream] = useState(null);
-
-  useEffect(()=>{
-    async function enableStream(){
-      const stream = await navigator.mediaDevices.getUserMedia({video:true});
-      setMediaStream(stream);
-    }
-    if (!mediaStream) { enableStream() }
-    else { return () => mediaStream.getTracks().forEach(track=>track.stop())}
-  }, [mediaStream]);
-
-  return mediaStream;
-}
+import AudioVisualizer from './room/player/AudioVisualizer';
 
 const Test = () => {
-  
-  const videoRef = useRef();
-  const stream = GetUserMedia();
 
-  if (stream && videoRef.current && !videoRef.current.srcObject) {
-    videoRef.current.srcObject = stream;
+  const [audio, setAudio] = useState(null);
+
+  const getAudioStream = async () => {
+    const devices = await navigator.mediaDevices.enumerateDevices()
+    const deviceId = devices.filter(device => device.label === 'MacBook Air Microphone')[0]
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio:{deviceId:deviceId}
+    });
+    setAudio(stream);
   }
 
+  useEffect(() => {
+    getAudioStream();
+  },[]);
+
   return (
-    <video ref={videoRef} autoPlay muted />
+    <div>
+      {audio?<AudioVisualizer audioStream={audio} size={{height:100,width:300}}/>:null}
+    </div>
   )
 
 }

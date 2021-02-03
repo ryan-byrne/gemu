@@ -30,7 +30,8 @@ const App = () => {
     const cn = name.length > 0 ? 'goodInput' : 'badInput';
 
     entry.className = cn;
-    entry.style.width = (Math.max(12,name.length*4)).toString()+'%';
+    entry.focus();
+    entry.style.width = (Math.max(12,name.length*1.5)).toString()+'vw';
     setUsername(name);
   };
 
@@ -44,7 +45,8 @@ const App = () => {
     const cn = id.length === 6 ? 'goodInput' : 'badInput';
 
     entry.className = cn;
-    entry.style.width = (Math.max(12,id.length*4)).toString()+'%';
+    entry.focus();
+    entry.style.width = (Math.max(12,id.length)).toString()+'vw';
     setRoomId(id.toUpperCase());
 
   };

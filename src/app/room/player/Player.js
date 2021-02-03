@@ -8,34 +8,38 @@ import unvid from './img/novideo.png';
 import noface from './img/noface.png';
 import arrow from './img/arrow.png';
 
+import AudioVisualizer from './AudioVisualizer';
+
 const Player = ({size}) => {
 
   const [media, setMedia] = useState({
-    video:{track:null,selecting:false,id:''},
-    audio:{track:null,selecting:false,id:''}
+    video:{stream:null,selecting:false,id:null},
+    audio:{stream:null,selecting:false,id:null}
   });
   const [devices, setDevices] = useState({video:[],audio:[]})
 
-  const videoRef = useRef();
-  const audioRef = useRef();
+  const videoRef = useRef(null);
+  const audioRef = useRef(null);
 
   const stopAudio = () => {
-    media.audio.track.forEach((track)=> track.stop())
-    setMedia({...media,audio:{...media.audio, track:null}})
+    if ( !media.audio.stream ) {return}
+    media.audio.stream.getAudioTracks().forEach((track)=> track.stop())
+    setMedia({...media,audio:{...media.audio, stream:null}})
   }
 
   const stopVideo = () => {
-    media.video.track.forEach((track)=> track.stop())
-    setMedia({...media,video:{...media.video, track:null}})
+    if ( !media.video.stream ) {return}
+    media.video.stream.getVideoTracks().forEach((track)=> track.stop())
+    setMedia({...media,video:{...media.video, stream:null}})
   }
 
   const toggleAudio = useCallback((event) => {
-    if ( !media.audio.track ) { getAudioStream() }
+    if ( !media.audio.stream ) { getAudioStream() }
     else { stopAudio() }
   });
 
   const toggleVideo = useCallback((event) => {
-    if ( !media.video.track ) { getVideoStream() }
+    if ( !media.video.stream ) { getVideoStream() }
     else { stopVideo() }
   });
 
@@ -64,22 +68,16 @@ const Player = ({size}) => {
   const getVideoStream = async (deviceId) => {
     const constraints = deviceId ? {video:{deviceId:{exact:deviceId}}} : {video:true}
     const stream = await navigator.mediaDevices.getUserMedia(constraints)
-    setMedia({...media,video:{
-      ...media.video,
-      track:stream.getVideoTracks()
-    }});
+    setMedia({...media,video:{...media.video,stream:stream}});
     let video = videoRef.current;
     video.srcObject = stream;
     video.play();
   }
 
-  const getAudioStream = async (deviceId) => {
-    const constraints = deviceId ? {audio:{deviceId:{exact:deviceId}}} : {audio:true}
+  const getAudioStream = async () => {
+    const constraints = media.audio.id ? {audio:{deviceId:{exact:media.audio.id}}} : {audio:true}
     const stream = await navigator.mediaDevices.getUserMedia(constraints)
-    setMedia({...media,audio:{
-      ...media.audio,
-      track:stream.getAudioTracks()
-    }});
+    setMedia({...media,audio:{...media.audio,stream:stream}});
   }
 
   const getDevices = async () => {
@@ -91,7 +89,6 @@ const Player = ({size}) => {
   }
 
   useEffect(()=> {
-    getVideoStream();
     getDevices();
   }, []);
 
@@ -108,24 +105,27 @@ const Player = ({size}) => {
   )
 
   return (
-    <div className='playerContainer'>
+    <div className='playerContainer' style={{height:size.height,width:size.width}}>
       <div className="mediaButtonContainer">
         <div className='mediaButtonRow'>
           <div className='popoutSelect'>{media.audio.selecting?audioPopout:null}</div>
           <img className='arrowButton' src={arrow} onClick={toggleAudioSelect}/>
-          <img className='mediaButtons' src={media.audio.track?mute:unmute}
+          <img className='mediaButtons' src={media.audio.stream?mute:unmute}
             onClick={toggleAudio}/>
         </div>
         <div className='mediaButtonRow'>
           <div className='popoutSelect'>{media.video.selecting?videoPopout:null}</div>
           <img className='arrowButton' src={arrow} onClick={toggleVideoSelect}/>
-          <img className='mediaButtons' src={media.video.track?vid:unvid}
+          <img className='mediaButtons' src={media.video.stream?vid:unvid}
             onClick={toggleVideo}/>
         </div>
       </div>
-      { !media.video.track ?
-        <img style={{height:size.height,width:size.width}} src={noface}></img> :
-          <video style={{height:size.height,width:size.width}} ref={videoRef}>Webcam</video> }
+      <video className="webcamContainer" style={{height:size.height,width:size.width}}
+        ref={videoRef}>Webcam</video>
+      { media.audio.stream ?
+        <AudioVisualizer className='audioVisualizer' size={size} audioStream={media.audio.stream}/>
+        : null
+      }
     </div>
   )
 
