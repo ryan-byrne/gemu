@@ -50,7 +50,7 @@ img:hover {
   top:-20%;
 }
 
-.audioDevices {
+.audioDevices, .videoDevices {
   padding: 0;
   border: 1px solid #2F3E46;
   text-align: center;
@@ -58,8 +58,10 @@ img:hover {
   border-radius: 5%;
 }
 
-.audioDevices:hover {
+.audioDevices:hover, .videoDevices:hover {
   color: white;
   border: 1px solid #2F3E46;
-  background-color: #2F3E46
+  background-color: #2F3E46;
+  transition: background-color 0.5s;
+  -webkit-transition: background-color 0.5s;
 }

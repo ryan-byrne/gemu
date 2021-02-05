@@ -117,7 +117,7 @@ export default function App (){
       <BrowserRouter>
         <Route exact path='/'>
           { client.socket ?
-            <Room client={client} roomId={roomId} username={username}
+            <Room client={client} username={username} roomId={roomId}
               handleLogout={handleLogout} handleMessage={handleMessage}/>
             :
             <Lobby username={username} roomId={roomId} handleJoinGame={handleJoinGame}

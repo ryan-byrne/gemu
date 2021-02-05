@@ -23,13 +23,17 @@ CAD2C5
 
 }
 
+.nofaceContainer {
+  content: url('../img/noface.png');
+}
+
 .mediaButtons:hover, .arrowButton:hover {
   transition: opacity 1.0s;
   -webkit-transition: opacity 1.0s;
   opacity: 1;
 }
 
-.webcamContainer {
+.webcamContainer, .nofaceContainer {
   position: relative;
   margin: 0;
   border-radius: 10%;

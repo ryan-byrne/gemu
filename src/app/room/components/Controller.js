@@ -6,27 +6,22 @@ import mute from './img/mute.png';
 import unmute from './img/unmute.png';
 import vid from './img/video.png';
 import unvid from './img/novideo.png';
-import arrow from './img/arrow.png';
-
 
 export default function Controller(
-  {setPlayerGeometry, playerGeometry, toggleAudio, toggleVideo, audio, video}){
+  {toggleAudio, toggleVideo, audio, video, handleDeviceSelect,
+  handleResize, handleMove}){
 
   const [keys, setKeys] = useState([]);
-  const [dynamics, setDynamics] = useState({
-    x:200,y:0,velX:0,velY:0,speed:2,friction:0.2
-  })
+  const [dynamics, setDynamics] = useState({x:0,y:0,velX:0,velY:0,speed:2,friction:0.2})
   const [select, setSelect] = useState(null);
 
   var selecting = false;
 
   const handleKey = useCallback((event) => {
 
-    if ( event.keyCode < 37 || event.keyCode > 40) { return }
+    if (![37,38,39,40,65,87,68,83].includes(event.keyCode)) { return }
 
-    var { x, y } = playerGeometry.position;
-
-    var {velY, velX, friction, speed} = dynamics;
+    var {x, y, velY, velX, friction, speed} = dynamics;
 
     let start = Date.now();
     var pressedKeys = keys;
@@ -35,40 +30,26 @@ export default function Controller(
 
     requestAnimationFrame( function update(){
       let interval = Date.now() - start;
-      if ( pressedKeys[38] ) { if (velY > -speed) { velY-- } }
-      if (pressedKeys[40]) { if (velY < speed) { velY++ } }
-      if (pressedKeys[39]) { if (velX < speed) { velX++ } }
-      if (pressedKeys[37]) { if (velX > -speed) { velX-- } }
+      if ( pressedKeys[38]||pressedKeys[87] ) { if (velY > -speed) { velY-- } }
+      if (pressedKeys[40]||pressedKeys[83]) { if (velY < speed) { velY++ } }
+      if (pressedKeys[39]||pressedKeys[68]) { if (velX < speed) { velX++ } }
+      if (pressedKeys[37]||pressedKeys[65]) { if (velX > -speed) { velX-- } }
       velY *= friction; y += velY; velX *= friction; x += velX;
       if (x >= window.innerWidth) { x = 295 } else if (x <= 5) { x = 5 }
       if (y > window.innerHeight) { y = 295 } else if (y <= 5) { y = 5 }
-      setDynamics({velX:velX,velY:velY,speed:2,friction:0.98});
-      setPlayerGeometry({...playerGeometry, position:{x:x,y:y}})
+      setDynamics({x:x,y:y,velX:velX,velY:velY,speed:2,friction:0.98});
       setKeys(pressedKeys);
+      handleMove({x:x,y:y})
       if (interval < 2000 ) { requestAnimationFrame(update) }
     });
 
-  }, [playerGeometry, dynamics, keys, setPlayerGeometry]);
-
-  const handleResize = useCallback((event) => {
-
-    const height = Math.max(window.innerWidth*3/20, 125)
-    setPlayerGeometry({...playerGeometry, size:{
-      height:height, width:height*4/3
-    }});
-
-  },[setPlayerGeometry, playerGeometry]);
-
-  const handleSelectVideo = useCallback((event) => {
-
-  });
-
-  const handleSelectAudio = useCallback((event) => {
-
-  });
+  }, [dynamics, keys, handleMove]);
 
   const handleMouseUp = useCallback((event) => {
-    if (select) {console.log(event.target.className, event.target.id)}
+
+    // TODO: actually change devices
+
+    if (select) { console.log(event) }
     selecting = false;
     setSelect(null);
   });
@@ -92,20 +73,18 @@ export default function Controller(
   useEffect(() => {
     window.addEventListener('keyup', handleKey, true);
     window.addEventListener('keydown', handleKey, true);
-    window.addEventListener('resize', handleResize, true);
     window.addEventListener('mousedown', handleMouseDown, true);
     window.addEventListener('mouseup', handleMouseUp, true);
     window.addEventListener('ondragstart', () => {return}, true);
     return () => {
       window.removeEventListener("keyup", handleKey, true);
       window.removeEventListener('keydown', handleKey, true);
-      window.removeEventListener('resize', handleResize, true);
       window.removeEventListener('mousedown', handleMouseDown, true);
       window.removeEventListener('mouseup', handleMouseUp, true);
       window.removeEventListener('ondragstart', () => {return}, true);
 
     }
-  })
+  }, [])
 
   const selectAudio = (
     <div className='deviceList'>
@@ -117,7 +96,7 @@ export default function Controller(
   const selectVideo = (
     <div className='deviceList'>
       { video.devices.map( (device) =>
-        <ul id={device.deviceId} key={device.deviceId} className='audioDevices'>{device.label}</ul> ) }
+        <ul id={device.deviceId} key={device.deviceId} className='videoDevices'>{device.label}</ul> ) }
     </div>
   )
 

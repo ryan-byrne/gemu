@@ -40,6 +40,7 @@ function joinSession(data, socket){
     });
     socket.to(roomId).emit('joined', {username:username,id:socket.id});
     console.log(username + ' joined ' + roomId);
+    console.log(io.sockets.adapter.rooms);
   }
 }
 
@@ -54,6 +55,11 @@ function leaveSession(data, socket){
     console.log(username + ' left ' + roomId);
   }
 
+}
+
+function getPlayers(roomId, socket){
+  console.log('Getting players');
+  socket.to(roomId).emit('playerData', io.sockets.adapter.rooms[roomId])
 }
 
 function move(data, socket){
@@ -86,6 +92,8 @@ io.on('connection', (socket) => {
   socket.on('leaveSession', (data) => leaveSession(data, socket) );
 
   socket.on('endSession', (data) => { }); // TODO:
+
+  socket.on('getPlayers', (roomId) => getPlayers(roomId, socket));
 
   socket.on('success', (roomId) => { socket.emit(games[roomId].active) })
 

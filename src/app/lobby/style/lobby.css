@@ -62,15 +62,18 @@ CAD2C5
 }
 
 .subMenuRow {
-  height: 100%;
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-top: 2vh;
 }
 
 .randomButton {
   vertical-align: middle;
-  margin-left: 2vw;
   cursor: pointer;
+  padding: 0;
+  margin: 0;
+  margin-left: 1%;
   opacity: 0.4;
 }
 

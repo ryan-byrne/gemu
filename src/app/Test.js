@@ -1,96 +1,38 @@
-import {useRef, useState, useEffect, useCallback} from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
-import Player from './room/components/Player';
-import Controller from './room/components/Controller';
+import Naming from './lobby/util/Naming.js';
+import Room from './room/Room';
+import './room/style/room.css';
 
-export default function Test() {
+const socket = require('socket.io-client')();
 
-  // Test Room
+export default function Test(){
 
-  const [audio, setAudio] = useState({stream:null,id:null,devices:[]});
-  const [video, setVideo] = useState({stream:null,id:null,devices:[]});
-  const height = Math.max(window.innerWidth*3/20, 125);
-  const [playerGeometry, setPlayerGeometry] = useState({
-    size:{ height:height, width:height*4/3}, position:{x:0,y:0}
-  })
+  // Tes App
 
-  const startVideo = () => {
-
-    const constraints = video.id ? {deviceId:video.id} : true
-
-    navigator.mediaDevices.getUserMedia({video:constraints})
-      .then((stream)=>{
-        navigator.mediaDevices.enumerateDevices()
-          .then((devices) => {
-            setVideo({
-              stream:stream,
-              devices:devices.filter(d=> d.kind === 'videoinput'),
-              id:stream.id
-            });
-          })
-          .catch((err) => console.log(err))
-      })
-      .catch((err) => console.log(err))
-
+  const getRandomName = () => {
+    var adj = Naming.adjectives[Math.floor(Math.random() * Naming.adjectives.length)];
+    var noun = Naming.nouns[Math.floor(Math.random() * Naming.adjectives.length)];
+    adj = adj.charAt(0).toUpperCase() + adj.slice(1);
+    noun = noun.charAt(0).toUpperCase() + noun.slice(1);
+    return adj+noun;
   };
 
-  const startAudio = () => {
-
-    const constraints = audio.id ? {deviceId:audio.id} : true
-
-    navigator.mediaDevices.getUserMedia({audio:constraints})
-      .then((stream)=>{
-        navigator.mediaDevices.enumerateDevices()
-          .then((devices) => {
-            setAudio({stream:stream, devices:devices.filter(d=> d.kind === 'audioinput')});
-          })
-          .catch((err) => console.log(err))
-      })
-      .catch((err) => console.log(err))
-
-  };
-
-  const stopAudio = async () => {
-    if (!audio) { return } // Already stopped
-    await audio.stream.getAudioTracks().forEach((track)=> track.stop())
-    setAudio({...audio, stream:null});
-  };
-
-  const stopVideo = async () => {
-    if (!video) { return } // Already stopped
-    await video.stream.getVideoTracks().forEach((track)=> track.stop())
-    setVideo({...video, stream:null});
-  };
-
-  const toggleVideo = () => {
-    video.stream ? stopVideo() : startVideo();
+  const addPlayer = () => {
+    const newSocket = require('socket.io-client')();
+    newSocket.emit('joinSession', {username:getRandomName(),roomId:'TESTER'})
   }
 
-  const toggleAudio = () => {
-    audio.stream ? stopAudio() : startAudio();
-  }
+  const client = {socket:socket, peers:[]}
 
-  const cleanup = () => {
+  useEffect(() => {
+    socket.emit('startSession', {username:'Ryan',roomId:'TESTER'})
+  },[])
 
-    if (video.stream) {
-      video.stream.getVideoTracks().forEach((track)=> track.stop())
-    }
-    if (audio.stream) {
-      audio.stream.getAudioTracks().forEach((track)=> track.stop())
-    }
-  }
-
-  useEffect(() => { startVideo(); startAudio() }, []); // Start video on open
-  useEffect(() => { return () => cleanup() } , [video, audio]); // Clearmedia each remount
-
-  return (
-    <div>
-      <div className='localPlayerContainer'>
-        <Controller playerGeometry={playerGeometry} setPlayerGeometry={setPlayerGeometry}
-          toggleAudio={toggleAudio} toggleVideo={toggleVideo} audio={audio} video={video} />
-        <Player audio={audio} video={video} username='Local Player' size={playerGeometry.size}/>
-      </div>
+  return(
+    <div className='testContainer'>
+      <button onClick={addPlayer}>Add Player</button>
+      <Room client={client} username='TestPlayer' roomId='TESTER'/>
     </div>
   )
-
 }

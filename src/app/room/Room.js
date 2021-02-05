@@ -1,147 +1,124 @@
-import { useState, useEffect, useCallback } from 'react';
+import {useState, useEffect, useCallback} from 'react';
 
 import Player from './components/Player';
 import Controller from './components/Controller';
+import Environment from './components/Environment';
 
-import './style/room.css';
+export default function Room({client, roomId, username, handleLogout, handleMessage}) {
 
-const Connection = ({client, handleMessage}) => {
+  // Test Room
 
-  const [peers, setPeers] = useState(client.peers);
-
-  const handleJoined = useCallback((data)=> {
-    handleMessage(data.username+' has joined','blue');
-    setPeers([...peers, data.id]);
-  }, [handleMessage, setPeers, peers]);
-
-  const handleLeft = useCallback((data)=> {
-    handleMessage(data.username+' has left','blue');
-    setPeers(peers.filter(peer=>peer!==data.id))
-  }, [handleMessage, setPeers, peers]);
-
-  useEffect(() => {
-    client.socket.on('joined', (data) => handleJoined(data));
-    client.socket.on('left', (data) => handleLeft(data));
-  });
-
-  return (
-    <div>
-      {peers.map((peer,i)=><div key={i}>{peer}</div>)}
-    </div>
-  )
-
-}
-
-export default function Room(
-  {client, username, roomId, handleLogout, handleMessage}){
-
-  const [media, setMedia] = useState({
-    video:{stream:null,selecting:false,id:null,devices:[]},
-    audio:{stream:null,selecting:false,id:null,devices:[]}
-  });
+  const [audio, setAudio] = useState({stream:null,id:null,devices:[]});
+  const [video, setVideo] = useState({stream:null,id:null,devices:[]});
   const height = Math.max(window.innerWidth*3/20, 125);
-  const [playerGeometry, setPlayerGeometry] = useState({
-    size:{ height:height, width:height*4/3}, position:{x:0,y:0}
+  const [geometry, setGeometry] = useState({
+    size:{ height:height, width:height}, position:{x:0,y:0}
   })
 
-  const startVideo = () => {
+  const startVideo = async () => {
 
-    const constraints = media.video.id ? {deviceId:media.video.id} : true
+    console.log('starting video');
 
-    navigator.mediaDevices.getUserMedia({video:constraints})
-      .then((stream)=>{
-        navigator.mediaDevices.enumerateDevices()
-          .then((devices) => {
-            setMedia({...media,
-              video:{
-                ...media.video,
-                stream:stream,
-                devices:devices.filter(d=> d.kind === 'videoinput')
-              }
-            });
-          })
-          .catch((err) => console.log(err))
-      })
-      .catch((err) => console.log(err))
+    const constraints = video.id ? {deviceId:video.id} : true
+    const stream = await navigator.mediaDevices.getUserMedia({video:constraints})
+    const devices = await navigator.mediaDevices.enumerateDevices()
+
+    setVideo({
+      stream:stream,
+      devices:devices.map(device => device.kind === 'videoinput'),
+      id:stream.id
+    })
 
   };
 
-  const startAudio = () => {
+  const startAudio = async () => {
 
-    const constraints = media.audio.id ? {deviceId:media.audio.id} : true
+    console.log('Starting audio');
 
-    navigator.mediaDevices.getUserMedia({audio:constraints})
-      .then((stream)=>{
-        navigator.mediaDevices.enumerateDevices()
-          .then((devices) => {
-            setMedia({...media,
-              audio:{
-                ...media.audio,
-                stream:stream,
-                devices:devices.filter(d=> d.kind === 'audioinput')
-              }
-            });
-          })
-          .catch((err) => console.log(err))
-      })
-      .catch((err) => console.log(err))
+
+    const constraints = audio.id ? {deviceId:audio.id} : true
+    const stream = await navigator.mediaDevices.getUserMedia({audio:constraints})
+    const devices = await navigator.mediaDevices.enumerateDevices()
+
+    setAudio({
+      stream:stream,
+      devices:devices.map(device => device.kind === 'audioinput'),
+      id:stream.id
+    })
 
   };
 
   const stopAudio = async () => {
-    if (!media.audio.stream) { return }
-    await media.audio.stream.getAudioTracks().forEach((track)=> track.stop())
-    setMedia({...media,audio:{...media.audio, stream:null}});
+
+    console.log('Stopping Audio');
+
+    if (!audio.stream) { return } // Already stopped
+    const tracks = await audio.stream.getAudioTracks()
+    tracks.forEach((track)=> track.stop())
+    setAudio({...audio, stream:null});
   };
 
   const stopVideo = async () => {
-    if (!media.video.stream) { return }
-    await media.video.stream.getVideoTracks().forEach((track)=> track.stop())
-    setMedia({...media,video:{...media.video, stream:null}});
+
+    console.log('Stopping Video');
+
+    if (!video.stream) { return } // Already stopped
+    const tracks = await video.stream.getVideoTracks()
+    tracks.forEach((track)=> track.stop())
+    setVideo({...video, stream:null});
   };
 
-  const selectVideoDevice = useCallback((event) => {
-    stopVideo();
-    setMedia({...media, video:{...media.video, id:event.taget.value}});
-    startVideo();
-  },[setMedia,media,startVideo,stopVideo]);
+  const handleMove = useCallback((position) => {
 
-  const selectAudioDevice = useCallback((event) => {
-    stopAudio();
-    setMedia({...media, audio:{...media.audio, id:event.taget.value}});
-    getAudioStream();
   });
 
-  const toggleVideo = (event) => {
-    media.video.stream ? stopVideo() : startVideo();
-  }
+  const handleDeviceSelect = useCallback((event) => {
+    const {className, id} = event.target;
+    console.log(className, id);
+    if (className === 'audioDevices' && id){
+      stopAudio();
+      setAudio({...audio, id:id})
+      startAudio();
+    } else if (className === 'videoDevices' && id){
+      stopVideo();
+      setVideo({...video, id:id})
+      startVideo();
+    } else { return }
+  });
 
-  const toggleAudio = (event) => {
-    media.audio.stream ? stopAudio() : getAudioStream();
-  }
+  const toggleVideo = () => video.stream ? stopVideo() : startVideo();
+
+  const toggleAudio = () => audio.stream ? stopAudio() : startAudio()
 
   const cleanup = () => {
-    if (media.video.stream) {
-      media.video.stream.getVideoTracks().forEach((track)=> track.stop())
+
+    console.log('cleanup');
+
+    if (video.stream) {
+      video.stream.getVideoTracks().forEach((track)=> track.stop())
     }
-    if (media.audio.stream) {
-      media.audio.stream.getAudioTracks().forEach((track)=> track.stop())
+    if (audio.stream) {
+      audio.stream.getAudioTracks().forEach((track)=> track.stop())
     }
   }
 
-  useEffect(() => { startVideo() }, []); // Start video on open
-  useEffect(() => { return () => cleanup() } , [media]); // Clearmedia each remount
+  useEffect(() => {
+    //startVideo()
+    return () => cleanup()
+  },[]);
 
-  // TODO: Create menu to leave, invite, etc.
   return (
     <div className='roomContainer'>
-      <div>{roomId}</div>
-      <div className='menuButton' onClick={handleLogout}>Leave</div>
-      <Controller setPlayerGeometry={setPlayerGeometry} playerGeometry={playerGeometry}/>
+      <div onClick={handleLogout}>Leave</div>
+      <Environment client={client} username={username} audio={audio} video={video}
+        roomId={roomId} handleMessage={handleMessage} />
       <div className='localPlayerContainer'>
-        <Player size={playerGeometry.size} media={media} toggleAudio={toggleAudio}
-          toggleVideo={toggleVideo}/>
+        <Controller toggleAudio={toggleAudio} toggleVideo={toggleVideo}
+          audio={audio} video={video} handleMove={handleMove}
+          handleDeviceSelect={handleDeviceSelect}/>
+        <Player audioStream={audio.stream} videoStream={video.stream} username='Local Player'/>
       </div>
     </div>
   )
+
 }
