@@ -1,16 +1,12 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
 
 import './style/player.css';
-import mute from './img/mute.png';
-import unmute from './img/unmute.png';
-import vid from './img/video.png';
-import unvid from './img/novideo.png';
+
 import noface from './img/noface.png';
-import arrow from './img/arrow.png';
 
 import AudioVisualizer from './AudioVisualizer';
-
-const Player = ({size}) => {
+/*
+const Player2 = ({stream, size, username}) => {
 
   const [media, setMedia] = useState({
     video:{stream:null,selecting:false,id:null},
@@ -119,16 +115,48 @@ const Player = ({size}) => {
           <img className='mediaButtons' src={media.video.stream?vid:unvid}
             onClick={toggleVideo}/>
         </div>
+
       </div>
-      <video className="webcamContainer" style={{height:size.height,width:size.width}}
-        ref={videoRef}>Webcam</video>
+
+      { media.video.stream ?
+        <video className="webcamContainer" style={{height:size.height,width:size.width}}
+          ref={videoRef}>Webcam</video> :
+        <img className="webcamContainer" style={{height:size.height,width:size.width}}
+          src={noface}/>
+      }
+
       { media.audio.stream ?
         <AudioVisualizer className='audioVisualizer' size={size} audioStream={media.audio.stream}/>
         : null
       }
+
     </div>
   )
 
 }
+*/
 
-export default Player;
+export default function Player({size, audio, video}) {
+
+  const videoRef = useRef(null);
+  const audioRef = useRef(null);
+
+  const {height, width} = size;
+
+  const dummyVideo = (
+    <div className='webcamContainer'style={{height:height, width:width, backgroundColor:'black'}}></div>
+  )
+
+  const camVideo = (
+      <video className='webcamContainer' style={{height:height, width:width}}
+        ref={videoRef}>
+      </video>
+  )
+
+  return (
+    <div className='playerContainer'>
+      {video.stream ? camVideo : dummyVideo }
+      {audio.stream ? <AudioVisualizer audioStream={audio.stream} size={size}/> : null}
+    </div>
+  )
+}

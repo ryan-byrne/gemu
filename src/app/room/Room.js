@@ -1,6 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 
-import Player from './player/Player';
+import Player from './components/Player';
+import Controller from './components/Controller';
+
+import './style/room.css';
 
 const Connection = ({client, handleMessage}) => {
 
@@ -14,7 +17,6 @@ const Connection = ({client, handleMessage}) => {
   const handleLeft = useCallback((data)=> {
     handleMessage(data.username+' has left','blue');
     setPeers(peers.filter(peer=>peer!==data.id))
-    console.log(peers);
   }, [handleMessage, setPeers, peers]);
 
   useEffect(() => {
@@ -30,73 +32,116 @@ const Connection = ({client, handleMessage}) => {
 
 }
 
-const Room = ({client, username, roomId, handleLogout, handleMessage}) => {
+export default function Room(
+  {client, username, roomId, handleLogout, handleMessage}){
 
-  const [keys, setKeys] = useState([]);
+  const [media, setMedia] = useState({
+    video:{stream:null,selecting:false,id:null,devices:[]},
+    audio:{stream:null,selecting:false,id:null,devices:[]}
+  });
   const height = Math.max(window.innerWidth*3/20, 125);
-  const [player, setPlayer] = useState({
-    size:{ height:height, width:height*4/3},
-    dynamics:{x:200,y:0,velX:0,velY:0,speed:2,friction:0.2}
+  const [playerGeometry, setPlayerGeometry] = useState({
+    size:{ height:height, width:height*4/3}, position:{x:0,y:0}
   })
 
-  const handleKey = useCallback((event) => {
+  const startVideo = () => {
 
-    if ( event.keyCode < 37 || event.keyCode > 40) { return }
+    const constraints = media.video.id ? {deviceId:media.video.id} : true
 
-    var {x, y, velY, velX, friction, speed} = player.dynamics;
+    navigator.mediaDevices.getUserMedia({video:constraints})
+      .then((stream)=>{
+        navigator.mediaDevices.enumerateDevices()
+          .then((devices) => {
+            setMedia({...media,
+              video:{
+                ...media.video,
+                stream:stream,
+                devices:devices.filter(d=> d.kind === 'videoinput')
+              }
+            });
+          })
+          .catch((err) => console.log(err))
+      })
+      .catch((err) => console.log(err))
 
-    let start = Date.now();
-    var pressedKeys = keys;
-    const typed = event.type === 'keydown' ? true : false
-    pressedKeys[event.keyCode] = typed;
+  };
 
-    requestAnimationFrame( function update(){
-      let interval = Date.now() - start;
-      if ( pressedKeys[38] ) { if (velY > -speed) { velY-- } }
-      if (pressedKeys[40]) { if (velY < speed) { velY++ } }
-      if (pressedKeys[39]) { if (velX < speed) { velX++ } }
-      if (pressedKeys[37]) { if (velX > -speed) { velX-- } }
-      velY *= friction; y += velY; velX *= friction; x += velX;
-      if (x >= window.innerWidth) { x = 295 } else if (x <= 5) { x = 5 }
-      if (y > window.innerHeight) { y = 295 } else if (y <= 5) { y = 5 }
-      //clientSocket.emit('move',{username:username,roomId:roomId,position:{x:x,y:y}});
-      setPlayer({...player, dynamics: {
-        x:x,y:y,velX:velX,velY:velY,speed:2,friction:0.98
-      }});
-      setKeys(pressedKeys);
-      if (interval < 2000 ) { requestAnimationFrame(update) }
-    });
+  const startAudio = () => {
 
-  }, [keys, player]);
+    const constraints = media.audio.id ? {deviceId:media.audio.id} : true
 
-  const handleResize = useCallback((event) => {
+    navigator.mediaDevices.getUserMedia({audio:constraints})
+      .then((stream)=>{
+        navigator.mediaDevices.enumerateDevices()
+          .then((devices) => {
+            setMedia({...media,
+              audio:{
+                ...media.audio,
+                stream:stream,
+                devices:devices.filter(d=> d.kind === 'audioinput')
+              }
+            });
+          })
+          .catch((err) => console.log(err))
+      })
+      .catch((err) => console.log(err))
 
-    const height = Math.max(window.innerWidth*3/20, 125)
-    setPlayer({...player, size:{
-      height:height, width:height*4/3
-    }});
+  };
 
-  }, [player]);
+  const stopAudio = async () => {
+    if (!media.audio.stream) { return }
+    await media.audio.stream.getAudioTracks().forEach((track)=> track.stop())
+    setMedia({...media,audio:{...media.audio, stream:null}});
+  };
 
-  useEffect(() => {
-    window.addEventListener('keyup', handleKey, true);
-    window.addEventListener('keydown', handleKey, true);
-    window.addEventListener('resize', handleResize, true);
-    return () => {
-      window.removeEventListener("keyup", handleKey, true);
-      window.removeEventListener('keydown', handleKey, true);
-      window.removeEventListener('resize', handleResize, true);
+  const stopVideo = async () => {
+    if (!media.video.stream) { return }
+    await media.video.stream.getVideoTracks().forEach((track)=> track.stop())
+    setMedia({...media,video:{...media.video, stream:null}});
+  };
+
+  const selectVideoDevice = useCallback((event) => {
+    stopVideo();
+    setMedia({...media, video:{...media.video, id:event.taget.value}});
+    startVideo();
+  },[setMedia,media,startVideo,stopVideo]);
+
+  const selectAudioDevice = useCallback((event) => {
+    stopAudio();
+    setMedia({...media, audio:{...media.audio, id:event.taget.value}});
+    getAudioStream();
+  });
+
+  const toggleVideo = (event) => {
+    media.video.stream ? stopVideo() : startVideo();
+  }
+
+  const toggleAudio = (event) => {
+    media.audio.stream ? stopAudio() : getAudioStream();
+  }
+
+  const cleanup = () => {
+    if (media.video.stream) {
+      media.video.stream.getVideoTracks().forEach((track)=> track.stop())
     }
-  })
+    if (media.audio.stream) {
+      media.audio.stream.getAudioTracks().forEach((track)=> track.stop())
+    }
+  }
 
+  useEffect(() => { startVideo() }, []); // Start video on open
+  useEffect(() => { return () => cleanup() } , [media]); // Clearmedia each remount
+
+  // TODO: Create menu to leave, invite, etc.
   return (
-    <div>
+    <div className='roomContainer'>
       <div>{roomId}</div>
       <div className='menuButton' onClick={handleLogout}>Leave</div>
-      <Connection client={client} handleMessage={handleMessage}/>
-      <Player size={player.size}/>
+      <Controller setPlayerGeometry={setPlayerGeometry} playerGeometry={playerGeometry}/>
+      <div className='localPlayerContainer'>
+        <Player size={playerGeometry.size} media={media} toggleAudio={toggleAudio}
+          toggleVideo={toggleVideo}/>
+      </div>
     </div>
   )
 }
-
-export default Room;

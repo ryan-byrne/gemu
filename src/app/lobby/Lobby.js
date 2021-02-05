@@ -4,9 +4,9 @@ import './style/lobby.css';
 
 import shuffle from './style/shuffle.png';
 
-const Lobby = ({
+export default function Lobby({
     username, roomId, handleUserName, handleRoomId, handleStartGame, handleJoinGame
-  }) => {
+  }){
 
   const [selected, setSelected] = useState(null);
 
@@ -85,5 +85,3 @@ const Lobby = ({
     </div>
   )
 };
-
-export default Lobby;

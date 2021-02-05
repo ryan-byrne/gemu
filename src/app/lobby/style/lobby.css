@@ -13,7 +13,7 @@ CAD2C5
   position: absolute;
   text-align: center;
   width: 90vw;
-  height: 80vh;
+  height: 60vh;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -44,8 +44,8 @@ CAD2C5
   font-size: 3vh;
   padding-top: 2vh;
   padding-bottom: 2vh;
-  padding-left: 5vw;
-  padding-right: 5vw;
+  padding-left: 3vw;
+  padding-right: 3vw;
   margin-top: 2vh;
   margin-left: 1vw;
   margin-right: 1vw;
@@ -91,16 +91,18 @@ input[type=text] {
   padding-left: 2vh;
   border-radius: 12px;
   font-size: 3vh;
-  width:15vw;
+  width:150px;
 }
 
 input[type=text]:focus {
   outline: 0;
   transition: width 0.4s ease-in-out, opacity 0.4s;
-  width: 20vw;
+  width: 120px;
   opacity:0.8;
 }
 
-.goodInput { border-color: green; }
+.goodInput {
+  border-color: green;
+}
 
 .badInput { border-color: red; }

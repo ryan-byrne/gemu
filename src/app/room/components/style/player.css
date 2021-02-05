@@ -8,7 +8,7 @@ CAD2C5
 
 */
 
-.playerContainer {
+.localPlayerContainer {
   margin: 0;
   padding: 0;
   position: absolute;
@@ -19,26 +19,8 @@ CAD2C5
   vertical-align: middle;
 }
 
-.mediaButtonContainer {
-  position: absolute;
-  z-index: 1;
-}
+.remotePlayerContainer {
 
-.mediaButtons {
-  max-height: 30px;
-  max-width: 30px;
-  height: auto;
-  width:auto;
-  cursor: pointer;
-  opacity: 0.2;
-  margin-left: 5px;
-}
-
-.arrowButton {
-  max-height: 20px;
-  border: 1px solid #354F52;
-  opacity: 0.2;
-  cursor: pointer;
 }
 
 .mediaButtons:hover, .arrowButton:hover {
@@ -47,19 +29,8 @@ CAD2C5
   opacity: 1;
 }
 
-.mediaButtonRow {
-  display: flex;
-  align-items: center;
-  margin-top:20%;
-}
-
-.popoutSelect {
-  position: absolute;
-  right: 100%;
-}
-
 .webcamContainer {
-  position: absolute;
+  position: relative;
   margin: 0;
   border-radius: 10%;
   transform: rotateY(180deg);
@@ -68,7 +39,7 @@ CAD2C5
 }
 
 .audioVisualizer {
-  position: relative;
+  position: absolute;
   margin-left: 10%;
   margin-right: 10%;
 }

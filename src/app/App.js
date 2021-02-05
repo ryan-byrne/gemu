@@ -13,7 +13,7 @@ import Room from './room/Room'
 // Create a Socket to communicate with the game server
 const socket = require('socket.io-client')();
 
-const App = () => {
+export default function App (){
 
   const [username, setUsername] = useState('');
   const [roomId, setRoomId] = useState('');
@@ -31,7 +31,7 @@ const App = () => {
 
     entry.className = cn;
     entry.focus();
-    entry.style.width = (Math.max(12,name.length*1.5)).toString()+'vw';
+    entry.style.width = (Math.max(100,name.length*13)).toString()+'px';
     setUsername(name);
   };
 
@@ -46,7 +46,7 @@ const App = () => {
 
     entry.className = cn;
     entry.focus();
-    entry.style.width = (Math.max(12,id.length)).toString()+'vw';
+    entry.style.width = (Math.max(120,id.length*15)).toString()+'px';
     setRoomId(id.toUpperCase());
 
   };
@@ -92,18 +92,24 @@ const App = () => {
     setClient({socket:null,peers:[]});
   };
 
+  const handleError = (message) => {
+    handleMessage(message, 'red');
+    setClient({socket:null, peers:[]})
+  }
+
+  const handleSuccess = (data) => {
+    handleMessage(data.message, 'green');
+    setClient({socket:socket, peers:data.peers})
+  }
+
   useEffect( () => {
+
     // Set error message and clear socket on failure
-    socket.on('error', (message) => {
-      handleMessage(message, 'red');
-      setClient({socket:null, peers:[]})
-    });
+    socket.on('error', (message) => handleError(message));
     // Set client socket on success
-    socket.on('success', (data) => {
-      handleMessage(data.message, 'green');
-      setClient({socket:socket, peers:data.peers})
-    });
-  }, [setClient, handleMessage])
+    socket.on('success', (data) => handleSuccess(data));
+
+  }, [])
 
   return (
     <div className='appContainer'>
@@ -137,6 +143,3 @@ const App = () => {
     </div>
   )
 }
-
-
-export default App;

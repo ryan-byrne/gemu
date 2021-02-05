@@ -1,0 +1,65 @@
+/*
+
+CAD2C5
+84A98C
+52796F
+354F52
+2F3E46
+
+*/
+
+*::selection {
+  background: transparent;
+}
+
+.controllerContainer {
+  position: absolute;
+  height: 100%;
+  width: 20%;
+  margin-top: 15%;
+  z-index: 1;
+}
+
+img {
+  opacity: 0.3;
+  display: block;
+  margin: auto;
+  padding: 20%;
+  cursor: pointer;
+}
+
+img:hover {
+  transition: opacity 1.0s;
+  -webkit-transition: opacity 1.0s;
+  opacity: 1;
+}
+
+#audioSwitch {
+  height:20%;
+}
+
+#videoSwitch {
+  width:70%;
+}
+
+.deviceList {
+  position: absolute;
+  cursor: pointer;
+  width:350%;
+  left:100%;
+  top:-20%;
+}
+
+.audioDevices {
+  padding: 0;
+  border: 1px solid #2F3E46;
+  text-align: center;
+  color: #2F3E46;
+  border-radius: 5%;
+}
+
+.audioDevices:hover {
+  color: white;
+  border: 1px solid #2F3E46;
+  background-color: #2F3E46
+}

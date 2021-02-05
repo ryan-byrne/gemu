@@ -1,8 +1,22 @@
-import React, {useState, useRef, useEffect} from 'react';
+import React, {useEffect, useRef} from 'react';
 
-const AudioVisualizer = ({audioStream, size}) => {
+export default function AudioVisualizer({audioStream, size}){
 
-  function draw(){
+  // Animation Variable (in case it stops)
+  var animate;
+
+  // Create storage & target for audio data
+  const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  const analyser = audioContext.createAnalyser();
+  analyser.fftSize = 4096;
+  var bufferLength = analyser.frequencyBinCount;
+  var audioData = new Uint8Array(bufferLength);
+  if (audioStream) {
+    const source = audioContext.createMediaStreamSource(audioStream);
+    source.connect(analyser);
+  }
+
+  const draw = () => {
 
     animate = requestAnimationFrame(draw);
     analyser.getByteTimeDomainData(audioData);
@@ -14,38 +28,26 @@ const AudioVisualizer = ({audioStream, size}) => {
     context.fillStyle = '#2F3E46';
     context.strokeStyle = 'rgb(255, 255, 255)';
     context.beginPath();
+    context.moveTo(0,height/2)
     var x = 0;
-    for ( var freq in audioData) {
-      var level = audioData[freq] / 128.0;
-      var y = level * height / 2;
-      (freq === 0) ? context.moveTo(x, y) : context.lineTo(x, y);
-      x += width / audioData.length;
+    for ( var i in audioData) {
+      var y = audioData[i] / 255 * height;
+      context.lineTo(x,y);
+      x += width / bufferLength;
     }
-
-    context.lineTo(width, height/2);
     context.stroke();
 
   }
 
-  function cleanup(){
+  const cleanup = () => {
     cancelAnimationFrame(animate);
     audioContext.close();
   }
 
   useEffect(() => {
-    draw();
+    if (audioStream) { draw() }
     return () => cleanup()
   }, [])
-
-  // Create storage & target for audio data
-  const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-  const analyser = audioContext.createAnalyser();
-  const source = audioContext.createMediaStreamSource(audioStream);
-  source.connect(analyser);
-  var audioData = new Uint8Array(analyser.frequencyBinCount);
-
-  // Animation Variable (in case it stops)
-  var animate;
 
   // Create the Canvas
   const canvasRef = useRef(null);
@@ -58,5 +60,3 @@ const AudioVisualizer = ({audioStream, size}) => {
     </div>
   )
 }
-
-export default AudioVisualizer;

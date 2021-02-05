@@ -8,6 +8,11 @@ CAD2C5
 
 */
 
+.appContainer {
+  height: 100%;
+  width: 100%;
+}
+
 .footer {
   position: absolute;
   text-align: center;
