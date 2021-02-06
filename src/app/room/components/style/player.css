@@ -36,6 +36,8 @@ CAD2C5
 .webcamContainer, .nofaceContainer {
   position: relative;
   margin: 0;
+  height: 100%;
+  width: 100%;
   border-radius: 10%;
   transform: rotateY(180deg);
   -webkit-transform:rotateY(180deg); /* Safari and Chrome */
@@ -44,6 +46,8 @@ CAD2C5
 
 .audioVisualizer {
   position: absolute;
+  width: 80%;
+  height: 20%;
   margin-left: 10%;
-  margin-right: 10%;
+  top: 100%;
 }

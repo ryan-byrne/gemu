@@ -9,6 +9,7 @@ import JoinGame from './lobby/JoinGame';
 
 // Game Components
 import Room from './room/Room'
+import Test from './Test';
 
 // Create a Socket to communicate with the game server
 const socket = require('socket.io-client')();
@@ -131,6 +132,11 @@ export default function App (){
             <JoinGame username={username} setRoomId={setRoomId}
                 handleUserName={handleUserName} handleJoinGame={handleJoinGame}
                 handleLogout={handleLogout}/>
+          </div>
+        </Route>
+        <Route path='/test'>
+          <div>
+            <Test/>
           </div>
         </Route>
       </BrowserRouter>

@@ -31,7 +31,7 @@ export default function Test(){
 
   return(
     <div className='testContainer'>
-      <button onClick={addPlayer}>Add Player</button>
+      <button className='testButton' onClick={addPlayer}>Add Player</button>
       <Room client={client} username='TestPlayer' roomId='TESTER'/>
     </div>
   )

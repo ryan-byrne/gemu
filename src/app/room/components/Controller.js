@@ -8,8 +8,7 @@ import vid from './img/video.png';
 import unvid from './img/novideo.png';
 
 export default function Controller(
-  {toggleAudio, toggleVideo, audio, video, handleDeviceSelect,
-  handleResize, handleMove}){
+  {toggleAudio, toggleVideo, audio, video, setPosition}){
 
   const [keys, setKeys] = useState([]);
   const [dynamics, setDynamics] = useState({x:0,y:0,velX:0,velY:0,speed:2,friction:0.2})
@@ -17,7 +16,7 @@ export default function Controller(
 
   var selecting = false;
 
-  const handleKey = useCallback((event) => {
+  const handleKey = (event) => {
 
     if (![37,38,39,40,65,87,68,83].includes(event.keyCode)) { return }
 
@@ -30,31 +29,28 @@ export default function Controller(
 
     requestAnimationFrame( function update(){
       let interval = Date.now() - start;
-      if ( pressedKeys[38]||pressedKeys[87] ) { if (velY > -speed) { velY-- } }
+      if (pressedKeys[38]||pressedKeys[87] ) { if (velY > -speed) { velY-- } }
       if (pressedKeys[40]||pressedKeys[83]) { if (velY < speed) { velY++ } }
       if (pressedKeys[39]||pressedKeys[68]) { if (velX < speed) { velX++ } }
       if (pressedKeys[37]||pressedKeys[65]) { if (velX > -speed) { velX-- } }
       velY *= friction; y += velY; velX *= friction; x += velX;
-      if (x >= window.innerWidth) { x = 295 } else if (x <= 5) { x = 5 }
-      if (y > window.innerHeight) { y = 295 } else if (y <= 5) { y = 5 }
       setDynamics({x:x,y:y,velX:velX,velY:velY,speed:2,friction:0.98});
       setKeys(pressedKeys);
-      handleMove({x:x,y:y})
       if (interval < 2000 ) { requestAnimationFrame(update) }
     });
 
-  }, [dynamics, keys, handleMove]);
+  };
 
-  const handleMouseUp = useCallback((event) => {
+  const handleMouseUp = (event) => {
 
     // TODO: actually change devices
 
     if (select) { console.log(event) }
     selecting = false;
     setSelect(null);
-  });
+  };
 
-  const handleMouseDown = useCallback((event) => {
+  const handleMouseDown = (event) => {
 
     const { id } = event.target;
 
@@ -66,25 +62,27 @@ export default function Controller(
       selecting = true;
     }
 
-  });
+  };
 
   // TODO: Event handlers for touch events
 
-  useEffect(() => {
+  const startup = () => {
     window.addEventListener('keyup', handleKey, true);
     window.addEventListener('keydown', handleKey, true);
     window.addEventListener('mousedown', handleMouseDown, true);
     window.addEventListener('mouseup', handleMouseUp, true);
     window.addEventListener('ondragstart', () => {return}, true);
-    return () => {
-      window.removeEventListener("keyup", handleKey, true);
-      window.removeEventListener('keydown', handleKey, true);
-      window.removeEventListener('mousedown', handleMouseDown, true);
-      window.removeEventListener('mouseup', handleMouseUp, true);
-      window.removeEventListener('ondragstart', () => {return}, true);
+  }
 
-    }
-  }, [])
+  const cleanup = () => {
+    window.removeEventListener("keyup", handleKey, true);
+    window.removeEventListener('keydown', handleKey, true);
+    window.removeEventListener('mousedown', handleMouseDown, true);
+    window.removeEventListener('mouseup', handleMouseUp, true);
+    window.removeEventListener('ondragstart', () => {return}, true);
+  }
+
+  useEffect(() => { startup(); return () => cleanup() }, [])
 
   const selectAudio = (
     <div className='deviceList'>

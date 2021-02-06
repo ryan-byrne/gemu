@@ -4,16 +4,19 @@ import Player from './components/Player';
 import Controller from './components/Controller';
 import Environment from './components/Environment';
 
+const getScale = () => {
+  const { innerHeight, innerWidth } = window;
+  return innerHeight/4 > innerWidth/3 ? {width:innerWidth/3} : {height:innerHeight/4}
+}
+
 export default function Room({client, roomId, username, handleLogout, handleMessage}) {
 
   // Test Room
 
   const [audio, setAudio] = useState({stream:null,id:null,devices:[]});
   const [video, setVideo] = useState({stream:null,id:null,devices:[]});
-  const height = Math.max(window.innerWidth*3/20, 125);
-  const [geometry, setGeometry] = useState({
-    size:{ height:height, width:height}, position:{x:0,y:0}
-  })
+  const [size, setSize] = useState( getScale() );
+  const [position, setPosition] = useState({x:0,y:0})
 
   const startVideo = async () => {
 
@@ -68,31 +71,17 @@ export default function Room({client, roomId, username, handleLogout, handleMess
     setVideo({...video, stream:null});
   };
 
-  const handleMove = useCallback((position) => {
-
-  });
-
-  const handleDeviceSelect = useCallback((event) => {
-    const {className, id} = event.target;
-    console.log(className, id);
-    if (className === 'audioDevices' && id){
-      stopAudio();
-      setAudio({...audio, id:id})
-      startAudio();
-    } else if (className === 'videoDevices' && id){
-      stopVideo();
-      setVideo({...video, id:id})
-      startVideo();
-    } else { return }
-  });
-
   const toggleVideo = () => video.stream ? stopVideo() : startVideo();
 
   const toggleAudio = () => audio.stream ? stopAudio() : startAudio()
 
+  const handleResize = (event) => setSize( getScale() )
+
   const cleanup = () => {
 
     console.log('cleanup');
+
+    window.removeEventListener('resize', handleResize, true);
 
     if (video.stream) {
       video.stream.getVideoTracks().forEach((track)=> track.stop())
@@ -102,10 +91,13 @@ export default function Room({client, roomId, username, handleLogout, handleMess
     }
   }
 
-  useEffect(() => {
-    //startVideo()
-    return () => cleanup()
-  },[]);
+  const startup = () => {
+
+    window.addEventListener('resize', handleResize, true);
+    
+  }
+
+  useEffect(() => { startup(); return () => cleanup() },[]);
 
   return (
     <div className='roomContainer'>
@@ -113,10 +105,9 @@ export default function Room({client, roomId, username, handleLogout, handleMess
       <Environment client={client} username={username} audio={audio} video={video}
         roomId={roomId} handleMessage={handleMessage} />
       <div className='localPlayerContainer'>
-        <Controller toggleAudio={toggleAudio} toggleVideo={toggleVideo}
-          audio={audio} video={video} handleMove={handleMove}
-          handleDeviceSelect={handleDeviceSelect}/>
-        <Player audioStream={audio.stream} videoStream={video.stream} username='Local Player'/>
+        <Controller toggleAudio={toggleAudio} toggleVideo={toggleVideo} audio={audio}
+          video={video} setPosition={setPosition}/>
+        <Player audioStream={audio.stream} videoStream={video.stream} size={size} username={username}/>
       </div>
     </div>
   )
