@@ -15,8 +15,8 @@ export default function Room({client, roomId, username, handleLogout, handleMess
 
   const [audio, setAudio] = useState({stream:null,id:null,devices:[],on:false});
   const [video, setVideo] = useState({stream:null,id:null,devices:[],on:false});
-  const videoOn = useRef(video.stream);
-  const audioOn = useRef(audio.stream);
+  const videoOn = useRef(video);
+  const audioOn = useRef(audio);
   const [size, setSize] = useState( getScale() );
   const [position, setPosition] = useState({x:0,y:0})
 
@@ -34,37 +34,50 @@ export default function Room({client, roomId, username, handleLogout, handleMess
   }
 
   const startVideo = (deviceId) => {
-    const constraints = deviceId ? {deviceId:deviceId} : true
+
+    console.log(deviceId, videoOn.current.id);
+
+    var id;var constraints;
+    if (deviceId){constraints={deviceId:deviceId};id=deviceId }
+    else if (videoOn.current.id){constraints={deviceId:videoOn.current.id};id=videoOn.current.id }
+    else {constraints=true;id=videoOn.current.id}
+
     navigator.mediaDevices.getUserMedia({video:constraints})
-      .then( (stream) => setVideo((prevVideo)=>({...prevVideo, stream:stream})))
+      .then( (stream) => setVideo((prevVideo)=>({...prevVideo, stream:stream,id:id})))
       .catch((err)=>console.log(err))
+
   };
 
   const startAudio = (deviceId) => {
-    const constraints = deviceId ? {deviceId:deviceId} : true
+
+    var id;var constraints;
+    if (deviceId){constraints={deviceId:deviceId};id=deviceId }
+    else if (audioOn.current.id){constraints={deviceId:audioOn.current.id};id=audioOn.current.id }
+    else {constraints=true;id=audioOn.current.id}
+
     navigator.mediaDevices.getUserMedia({audio:constraints})
-      .then( (stream) => setAudio((prevAudio)=>({...prevAudio, stream:stream})))
+      .then( (stream) => setAudio((prevAudio)=>({...prevAudio, stream:stream, id:id})))
       .catch((err)=>console.log(err))
   };
 
   const stopAudio = () => {
-    if (!audioOn.current) {return}
-    audioOn.current.getAudioTracks().map( (track) => track.stop() );
+    if (!audioOn.current.stream) {return}
+    audioOn.current.stream.getAudioTracks().map( (track) => track.stop() );
     setAudio((prevAudio)=>({...prevAudio, stream:null}));
   };
 
   const stopVideo = () => {
-    if (!videoOn.current) {return}
-    videoOn.current.getVideoTracks().map( track => track.stop() );
+    if (!videoOn.current.stream) {return}
+    videoOn.current.stream.getVideoTracks().map( track => track.stop() );
     setVideo((prevVideo)=>({...prevVideo, stream:null}));
   };
 
   const toggleVideo = () => {
-    videoOn.current ? stopVideo() : startVideo()
+    videoOn.current.stream ? stopVideo() : startVideo()
   };
 
   const toggleAudio = () => {
-    audioOn.current ? stopAudio() : startAudio()
+    audioOn.current.stream ? stopAudio() : startAudio()
   };
 
   const handleResize = (event) => setSize( getScale() )
@@ -105,8 +118,8 @@ export default function Room({client, roomId, username, handleLogout, handleMess
   }
 
   useEffect(() => { startup(); return () => cleanup() },[]);
-  useEffect(() => { videoOn.current = video.stream}, [video]);
-  useEffect(() => { audioOn.current = audio.stream}, [audio]);
+  useEffect(() => { videoOn.current = video}, [video]);
+  useEffect(() => { audioOn.current = audio}, [audio]);
 
   return (
     <div className='roomContainer'>

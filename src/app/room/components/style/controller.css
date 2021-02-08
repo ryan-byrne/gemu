@@ -51,17 +51,22 @@ img:hover {
 }
 
 .audioDevices, .videoDevices {
-  padding: 0;
+  margin: 1%;
+  padding-left: 0;
+  padding-top: 3%;
+  padding-bottom: 3%;
   border: 1px solid #2F3E46;
+  background-color: #84A98C;
   text-align: center;
+  font-size: 2vh;
+  border-radius: 5px;
   color: #2F3E46;
-  border-radius: 5%;
+  opacity: 0.4;
 }
 
 .audioDevices:hover, .videoDevices:hover {
-  color: white;
-  border: 1px solid #2F3E46;
-  background-color: #2F3E46;
-  transition: background-color 0.5s;
-  -webkit-transition: background-color 0.5s;
+  color:white;
+  transition: opacity 0.5s;
+  -webkit-transition: opacity 0.5s;
+  opacity: 1;
 }
