@@ -135,7 +135,7 @@ export default function App (){
         </Route>
         <Route path='/test'>
           <div>
-            <Test/>
+            <Test handleMessage={handleMessage}/>
           </div>
         </Route>
       </BrowserRouter>

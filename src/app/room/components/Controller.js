@@ -44,9 +44,9 @@ export default function Controller(
 
   const handleMouseUp = (event) => {
 
-    const { tagName, id, className } = event.target;
+    const { tagName, id, className, textContent } = event.target;
 
-    if ( holding && tagName==='UL' ) { handleDeviceSelect(className, id) }
+    if ( holding && tagName==='UL' ) { handleDeviceSelect(textContent, className, id) }
     holding = false;
     setSelected(null);
   }

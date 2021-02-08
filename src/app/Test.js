@@ -6,7 +6,7 @@ import './room/style/room.css';
 
 const socket = require('socket.io-client')();
 
-export default function Test({media}){
+export default function Test({handleMessage}){
 
   // Tes App
 
@@ -32,7 +32,7 @@ export default function Test({media}){
   return(
     <div className='testContainer'>
       <button className='testButton' onClick={addPlayer}>Add Player</button>
-      <Room client={client} username='TestPlayer' roomId='TESTER'/>
+      <Room client={client} username='TestPlayer' roomId='TESTER' handleMessage={handleMessage}/>
     </div>
   )
 }

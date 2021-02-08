@@ -33,36 +33,28 @@ export default function Room({client, roomId, username, handleLogout, handleMess
       .catch((err)=>console.log(err))
   }
 
-  const startVideo = () => {
-
-    console.log('Starting video');
-
-    const constraints = video.id ? {deviceId:video.id} : true
-
+  const startVideo = (deviceId) => {
+    const constraints = deviceId ? {deviceId:deviceId} : true
     navigator.mediaDevices.getUserMedia({video:constraints})
       .then( (stream) => setVideo((prevVideo)=>({...prevVideo, stream:stream})))
       .catch((err)=>console.log(err))
-
   };
 
-  const startAudio = () => {
-
-    console.log('Starting audio');
-
-    const constraints = audio.id ? {deviceId:audio.id} : true
-
+  const startAudio = (deviceId) => {
+    const constraints = deviceId ? {deviceId:deviceId} : true
     navigator.mediaDevices.getUserMedia({audio:constraints})
-      .then( (stream) => setAudio({...audio, stream:stream}))
+      .then( (stream) => setAudio((prevAudio)=>({...prevAudio, stream:stream})))
       .catch((err)=>console.log(err))
-
   };
 
   const stopAudio = () => {
+    if (!audioOn.current) {return}
     audioOn.current.getAudioTracks().map( (track) => track.stop() );
     setAudio((prevAudio)=>({...prevAudio, stream:null}));
   };
 
   const stopVideo = () => {
+    if (!videoOn.current) {return}
     videoOn.current.getVideoTracks().map( track => track.stop() );
     setVideo((prevVideo)=>({...prevVideo, stream:null}));
   };
@@ -77,14 +69,17 @@ export default function Room({client, roomId, username, handleLogout, handleMess
 
   const handleResize = (event) => setSize( getScale() )
 
-  const handleDeviceSelect = (className, id) => {
+  const handleDeviceSelect = (name, type, id) => {
 
-    if (className === 'videoDevices') {
-      console.log(video);
-      console.log('video', id);
+    if (type === 'videoDevices') {
+      stopVideo();
+      handleMessage('Video Device switched to '+name)
+      startVideo(id);
     }
-    else if (className === 'audioSelect') {
-      console.log('audio', id);
+    else if (type === 'audioDevices') {
+      stopAudio();
+      handleMessage('Audio Device switched to '+name)
+      startAudio(id);
     }
 
   };
@@ -116,8 +111,8 @@ export default function Room({client, roomId, username, handleLogout, handleMess
   return (
     <div className='roomContainer'>
       <div onClick={handleLogout}>Leave</div>
-      <Environment client={client} username={username} audio={audio} video={video}
-        roomId={roomId} handleMessage={handleMessage} />
+      <Environment client={client} username={username} localAudio={audio} localVideo={video}
+        roomId={roomId} handleMessage={handleMessage} size={size} position={position}/>
       <div className='localPlayerContainer'>
         <Controller toggleAudio={toggleAudio} toggleVideo={toggleVideo} audio={audio}
           video={video} handleDeviceSelect={handleDeviceSelect} setPosition={setPosition} />

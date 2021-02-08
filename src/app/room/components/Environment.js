@@ -19,6 +19,7 @@ export default function Environment({client, username, roomId, video, audio, han
   useEffect(() => {
     client.socket.on('joined', (data) => handleJoin(data));
     client.socket.on('left', (data) => handleLeft(data));
+    handleMessage('Hello World', 'green')
   }, []);
 
   return(
