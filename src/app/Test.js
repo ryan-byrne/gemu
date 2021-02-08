@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useEffect } from 'react';
 
 import Naming from './lobby/util/Naming.js';
 import Room from './room/Room';
@@ -6,7 +6,7 @@ import './room/style/room.css';
 
 const socket = require('socket.io-client')();
 
-export default function Test(){
+export default function Test({media}){
 
   // Tes App
 

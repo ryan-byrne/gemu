@@ -8,15 +8,14 @@ import vid from './img/video.png';
 import unvid from './img/novideo.png';
 
 export default function Controller(
-  {toggleAudio, toggleVideo, audio, video, setPosition}){
+  {toggleAudio, toggleVideo, audio, video, setPosition, handleDeviceSelect}){
 
-  const [keys, setKeys] = useState([]);
-  const [dynamics, setDynamics] = useState({x:0,y:0,velX:0,velY:0,speed:2,friction:0.2})
-  const [select, setSelect] = useState(null);
+  const [selected, setSelected] = useState(null);
+  var dynamics = {x:0,y:0,velX:0,velY:0,speed:2,friction:0.2}
+  var keys = []
+  var holding;
 
-  var selecting = false;
-
-  const handleKey = (event) => {
+  function handleKey(event){
 
     if (![37,38,39,40,65,87,68,83].includes(event.keyCode)) { return }
 
@@ -27,6 +26,8 @@ export default function Controller(
     const typed = event.type === 'keydown' ? true : false
     pressedKeys[event.keyCode] = typed;
 
+    // TODO: avoid state changes
+
     requestAnimationFrame( function update(){
       let interval = Date.now() - start;
       if (pressedKeys[38]||pressedKeys[87] ) { if (velY > -speed) { velY-- } }
@@ -34,8 +35,8 @@ export default function Controller(
       if (pressedKeys[39]||pressedKeys[68]) { if (velX < speed) { velX++ } }
       if (pressedKeys[37]||pressedKeys[65]) { if (velX > -speed) { velX-- } }
       velY *= friction; y += velY; velX *= friction; x += velX;
-      setDynamics({x:x,y:y,velX:velX,velY:velY,speed:2,friction:0.98});
-      setKeys(pressedKeys);
+      dynamics = {x:x,y:y,velX:velX,velY:velY,speed:2,friction:0.2}
+      setPosition({x:x,y:y})
       if (interval < 2000 ) { requestAnimationFrame(update) }
     });
 
@@ -43,12 +44,12 @@ export default function Controller(
 
   const handleMouseUp = (event) => {
 
-    // TODO: actually change devices
+    const { tagName, id, className } = event.target;
 
-    if (select) { console.log(event) }
-    selecting = false;
-    setSelect(null);
-  };
+    if ( holding && tagName==='UL' ) { handleDeviceSelect(className, id) }
+    holding = false;
+    setSelected(null);
+  }
 
   const handleMouseDown = (event) => {
 
@@ -56,10 +57,10 @@ export default function Controller(
 
     if (id === 'videoSwitch' || id === 'audioSwitch') {
       setTimeout(() => {
-        if (selecting) { setSelect(id) }
+        if ( holding ) { setSelected(id) }
         else { (id === 'videoSwitch') ? toggleVideo() : toggleAudio() }
       }, 250);
-      selecting = true;
+      holding = true;
     }
 
   };
@@ -102,10 +103,10 @@ export default function Controller(
     <div className="controllerContainer">
       <img draggable='false' id="audioSwitch" className='mediaButton'
         onDrag={()=>{return}} src={audio.stream ? mute : unmute}></img>
-      { select === 'audioSwitch' ? selectAudio : null }
+      { selected === 'audioSwitch' ? selectAudio : null }
       <img draggable='false' id="videoSwitch" className='mediaButton'
         onDrag={()=>{return}} src={video.stream ? vid : unvid}></img>
-      { select === 'videoSwitch' ? selectVideo : null }
+      { selected === 'videoSwitch' ? selectVideo : null }
     </div>
   )
 

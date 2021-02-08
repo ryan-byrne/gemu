@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, useCallback, useLayoutEffect} from 'react';
+import { useRef, useEffect} from 'react';
 
 import './style/player.css';
 
@@ -10,8 +10,9 @@ export default function Player({audioStream, videoStream, size, username}) {
   const audioRef = useRef(null);
 
   useEffect(() => {
-
-  });
+    const video = videoRef.current;
+    if ( video ) { video.srcObject = videoStream;video.play() }
+  }, [videoStream]);
 
   return (
     <div className='playerContainer' style={size}>

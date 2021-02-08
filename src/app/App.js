@@ -15,7 +15,6 @@ import Test from './Test';
 const socket = require('socket.io-client')();
 
 export default function App (){
-
   const [username, setUsername] = useState('');
   const [roomId, setRoomId] = useState('');
   const [client, setClient] = useState({});

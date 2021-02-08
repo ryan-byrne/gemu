@@ -1,4 +1,4 @@
-import {useState, useEffect, useCallback} from 'react';
+import {useState, useEffect, useCallback, useRef} from 'react';
 
 import Player from './components/Player';
 import Controller from './components/Controller';
@@ -13,69 +13,81 @@ export default function Room({client, roomId, username, handleLogout, handleMess
 
   // Test Room
 
-  const [audio, setAudio] = useState({stream:null,id:null,devices:[]});
-  const [video, setVideo] = useState({stream:null,id:null,devices:[]});
+  const [audio, setAudio] = useState({stream:null,id:null,devices:[],on:false});
+  const [video, setVideo] = useState({stream:null,id:null,devices:[],on:false});
+  const videoOn = useRef(video.stream);
+  const audioOn = useRef(audio.stream);
   const [size, setSize] = useState( getScale() );
   const [position, setPosition] = useState({x:0,y:0})
 
-  const startVideo = async () => {
+  const getDevices = () => {
+    navigator.mediaDevices.enumerateDevices()
+      .then((devices)=>{
+        setAudio(
+          (prevAudio)=>({...prevAudio, devices:devices.filter(device=>device.kind === 'audioinput')})
+        )
+        setVideo(
+          (prevVideo)=>({...prevVideo,devices:devices.filter(device=>device.kind === 'videoinput')})
+        )
+      })
+      .catch((err)=>console.log(err))
+  }
 
-    console.log('starting video');
+  const startVideo = () => {
+
+    console.log('Starting video');
 
     const constraints = video.id ? {deviceId:video.id} : true
-    const stream = await navigator.mediaDevices.getUserMedia({video:constraints})
-    const devices = await navigator.mediaDevices.enumerateDevices()
 
-    setVideo({
-      stream:stream,
-      devices:devices.map(device => device.kind === 'videoinput'),
-      id:stream.id
-    })
+    navigator.mediaDevices.getUserMedia({video:constraints})
+      .then( (stream) => setVideo((prevVideo)=>({...prevVideo, stream:stream})))
+      .catch((err)=>console.log(err))
 
   };
 
-  const startAudio = async () => {
+  const startAudio = () => {
 
     console.log('Starting audio');
 
-
     const constraints = audio.id ? {deviceId:audio.id} : true
-    const stream = await navigator.mediaDevices.getUserMedia({audio:constraints})
-    const devices = await navigator.mediaDevices.enumerateDevices()
 
-    setAudio({
-      stream:stream,
-      devices:devices.map(device => device.kind === 'audioinput'),
-      id:stream.id
-    })
+    navigator.mediaDevices.getUserMedia({audio:constraints})
+      .then( (stream) => setAudio({...audio, stream:stream}))
+      .catch((err)=>console.log(err))
 
   };
 
-  const stopAudio = async () => {
-
-    console.log('Stopping Audio');
-
-    if (!audio.stream) { return } // Already stopped
-    const tracks = await audio.stream.getAudioTracks()
-    tracks.forEach((track)=> track.stop())
-    setAudio({...audio, stream:null});
+  const stopAudio = () => {
+    audioOn.current.getAudioTracks().map( (track) => track.stop() );
+    setAudio((prevAudio)=>({...prevAudio, stream:null}));
   };
 
-  const stopVideo = async () => {
-
-    console.log('Stopping Video');
-
-    if (!video.stream) { return } // Already stopped
-    const tracks = await video.stream.getVideoTracks()
-    tracks.forEach((track)=> track.stop())
-    setVideo({...video, stream:null});
+  const stopVideo = () => {
+    videoOn.current.getVideoTracks().map( track => track.stop() );
+    setVideo((prevVideo)=>({...prevVideo, stream:null}));
   };
 
-  const toggleVideo = () => video.stream ? stopVideo() : startVideo();
+  const toggleVideo = () => {
+    videoOn.current ? stopVideo() : startVideo()
+  };
 
-  const toggleAudio = () => audio.stream ? stopAudio() : startAudio()
+  const toggleAudio = () => {
+    audioOn.current ? stopAudio() : startAudio()
+  };
 
   const handleResize = (event) => setSize( getScale() )
+
+  const handleDeviceSelect = (className, id) => {
+
+    if (className === 'videoDevices') {
+      console.log(video);
+      console.log('video', id);
+    }
+    else if (className === 'audioSelect') {
+      console.log('audio', id);
+    }
+
+  };
 
   const cleanup = () => {
 
@@ -94,10 +106,12 @@ export default function Room({client, roomId, username, handleLogout, handleMess
   const startup = () => {
 
     window.addEventListener('resize', handleResize, true);
-    
+    getDevices();
   }
 
   useEffect(() => { startup(); return () => cleanup() },[]);
+  useEffect(() => { videoOn.current = video.stream}, [video]);
+  useEffect(() => { audioOn.current = audio.stream}, [audio]);
 
   return (
     <div className='roomContainer'>
@@ -106,8 +120,9 @@ export default function Room({client, roomId, username, handleLogout, handleMess
         roomId={roomId} handleMessage={handleMessage} />
       <div className='localPlayerContainer'>
         <Controller toggleAudio={toggleAudio} toggleVideo={toggleVideo} audio={audio}
-          video={video} setPosition={setPosition}/>
-        <Player audioStream={audio.stream} videoStream={video.stream} size={size} username={username}/>
+          video={video} handleDeviceSelect={handleDeviceSelect} setPosition={setPosition} />
+        <Player audioStream={audio.stream} videoStream={video.stream} size={size}
+          username={username}/>
       </div>
     </div>
   )
