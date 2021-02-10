@@ -6,16 +6,17 @@ import mute from './img/mute.png';
 import unmute from './img/unmute.png';
 import vid from './img/video.png';
 import unvid from './img/novideo.png';
+import share from './img/share.png';
 
 export default function Controller(
-  {toggleAudio, toggleVideo, audio, video, setPosition, handleDeviceSelect}){
+  {toggleAudio, toggleVideo, audio, video, setPosition, size, handleDeviceSelect}){
 
   const [selected, setSelected] = useState(null);
   var dynamics = {x:0,y:0,velX:0,velY:0,speed:2,friction:0.2}
   var keys = []
   var holding;
 
-  function handleKey(event){
+  const handleKey = (event) => {
 
     if (![37,38,39,40,65,87,68,83].includes(event.keyCode)) { return }
 
@@ -35,7 +36,7 @@ export default function Controller(
       if (pressedKeys[39]||pressedKeys[68]) { if (velX < speed) { velX++ } }
       if (pressedKeys[37]||pressedKeys[65]) { if (velX > -speed) { velX-- } }
       velY *= friction; y += velY; velX *= friction; x += velX;
-      dynamics = {x:x,y:y,velX:velX,velY:velY,speed:2,friction:0.2}
+      dynamics = {x:x,y:y,velX:velX,velY:velY,speed:10,friction:0.2}
       setPosition({x:x,y:y})
       if (interval < 2000 ) { requestAnimationFrame(update) }
     });
@@ -67,23 +68,19 @@ export default function Controller(
 
   // TODO: Event handlers for touch events
 
-  const startup = () => {
+  useEffect(() => {
     window.addEventListener('keyup', handleKey, true);
     window.addEventListener('keydown', handleKey, true);
     window.addEventListener('mousedown', handleMouseDown, true);
     window.addEventListener('mouseup', handleMouseUp, true);
     window.addEventListener('ondragstart', () => {return}, true);
-  }
-
-  const cleanup = () => {
-    window.removeEventListener("keyup", handleKey, true);
-    window.removeEventListener('keydown', handleKey, true);
-    window.removeEventListener('mousedown', handleMouseDown, true);
-    window.removeEventListener('mouseup', handleMouseUp, true);
-    window.removeEventListener('ondragstart', () => {return}, true);
-  }
-
-  useEffect(() => { startup(); return () => cleanup() }, [])
+    return () => {
+      window.removeEventListener("keyup", handleKey, true);
+      window.removeEventListener('keydown', handleKey, true);
+      window.removeEventListener('mousedown', handleMouseDown, true);
+      window.removeEventListener('mouseup', handleMouseUp, true);
+      window.removeEventListener('ondragstart', () => {return}, true);
+    }}, [])
 
   const selectAudio = (
     <div className='deviceList'>
@@ -99,13 +96,23 @@ export default function Controller(
     </div>
   )
 
+  // TODO: Make te share button functional
+
   return(
-    <div className="controllerContainer">
-      <img draggable='false' id="audioSwitch" className='mediaButton'
-        onDrag={()=>{return}} src={audio.stream ? mute : unmute}></img>
+    <div className="controllerContainer" style={size}>
+      <div className='mediaButtonRow'>
+        <img draggable='false' id="audioSwitch" className='mediaButton'
+          onDrag={()=>{return}} src={audio.stream ? mute : unmute}/>
+      </div>
       { selected === 'audioSwitch' ? selectAudio : null }
-      <img draggable='false' id="videoSwitch" className='mediaButton'
-        onDrag={()=>{return}} src={video.stream ? vid : unvid}></img>
+      <div className='mediaButtonRow'>
+        <img draggable='false' id="videoSwitch" className='mediaButton'
+          onDrag={()=>{return}} src={video.stream ? vid : unvid}></img>
+      </div>
+      <div className='mediaButtonRow'>
+        <img draggable='false' id="shareButton" className='mediaButton'
+          onDrag={()=>{return}} src={share}></img>
+      </div>
       { selected === 'videoSwitch' ? selectVideo : null }
     </div>
   )

@@ -6,7 +6,11 @@ import Environment from './components/Environment';
 
 const getScale = () => {
   const { innerHeight, innerWidth } = window;
-  return innerHeight/4 > innerWidth/3 ? {width:innerWidth/3} : {height:innerHeight/4}
+  if (innerHeight/4 > innerWidth/3) {
+    return {width:innerWidth/3, height:innerWidth/4}
+  } else {
+    return {height:innerHeight/4, width:innerHeight/3} 
+  }
 }
 
 export default function Room({client, roomId, username, handleLogout, handleMessage}) {
@@ -17,8 +21,7 @@ export default function Room({client, roomId, username, handleLogout, handleMess
   const [video, setVideo] = useState({stream:null,id:null,devices:[],on:false});
   const videoOn = useRef(video);
   const audioOn = useRef(audio);
-  const [size, setSize] = useState( getScale() );
-  const [position, setPosition] = useState({x:0,y:0})
+  const [size, setSize] = useState( getScale() )
 
   const getDevices = () => {
     navigator.mediaDevices.enumerateDevices()
@@ -34,8 +37,6 @@ export default function Room({client, roomId, username, handleLogout, handleMess
   }
 
   const startVideo = (deviceId) => {
-
-    console.log(deviceId, videoOn.current.id);
 
     var id;var constraints;
     if (deviceId){constraints={deviceId:deviceId};id=deviceId }
@@ -80,8 +81,6 @@ export default function Room({client, roomId, username, handleLogout, handleMess
     audioOn.current.stream ? stopAudio() : startAudio()
   };
 
-  const handleResize = (event) => setSize( getScale() )
-
   const handleDeviceSelect = (name, type, id) => {
 
     if (type === 'videoDevices') {
@@ -97,38 +96,36 @@ export default function Room({client, roomId, username, handleLogout, handleMess
 
   };
 
-  const cleanup = () => {
+  const handleResize = (event) => setSize( getScale() )
 
-    console.log('cleanup');
-
-    window.removeEventListener('resize', handleResize, true);
-
-    if (video.stream) {
-      video.stream.getVideoTracks().forEach((track)=> track.stop())
-    }
-    if (audio.stream) {
-      audio.stream.getAudioTracks().forEach((track)=> track.stop())
-    }
-  }
-
-  const startup = () => {
+  useEffect(() => {
 
     window.addEventListener('resize', handleResize, true);
     getDevices();
-  }
 
-  useEffect(() => { startup(); return () => cleanup() },[]);
+    return () => {
+      window.removeEventListener('resize', handleResize, true);
+
+      if (video.stream) {
+        video.stream.getVideoTracks().forEach((track)=> track.stop())
+      }
+      if (audio.stream) {
+        audio.stream.getAudioTracks().forEach((track)=> track.stop())
+      }
+    }
+
+  },[]);
+
   useEffect(() => { videoOn.current = video}, [video]);
   useEffect(() => { audioOn.current = audio}, [audio]);
+  useEffect(() => console.log('rerendered'))
 
   return (
     <div className='roomContainer'>
-      <div onClick={handleLogout}>Leave</div>
-      <Environment client={client} username={username} localAudio={audio} localVideo={video}
-        roomId={roomId} handleMessage={handleMessage} size={size} position={position}/>
+      <Environment client={client} username={username} audio={audio} video={video}
+        roomId={roomId} handleMessage={handleMessage} toggleVideo={toggleVideo}
+        size={size} toggleAudio={toggleAudio} handleDeviceSelect={handleDeviceSelect}/>
       <div className='localPlayerContainer'>
-        <Controller toggleAudio={toggleAudio} toggleVideo={toggleVideo} audio={audio}
-          video={video} handleDeviceSelect={handleDeviceSelect} setPosition={setPosition} />
         <Player audioStream={audio.stream} videoStream={video.stream} size={size}
           username={username}/>
       </div>

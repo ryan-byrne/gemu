@@ -14,59 +14,59 @@ CAD2C5
 
 .controllerContainer {
   position: absolute;
-  height: 100%;
-  width: 20%;
-  margin-top: 15%;
+  top: 50%;
+  left: 50%;
+  padding: 0;
+  display: block;
+  align-items: center;
+  transform: translate(-50%, -50%);
   z-index: 1;
 }
 
-img {
-  opacity: 0.3;
-  display: block;
-  margin: auto;
-  padding: 20%;
-  cursor: pointer;
+.mediaButtonRow {
+  position: relative;
+  top: 20%;
+  height: 20%;
+  width: 20%;
+  text-align: center;
 }
 
-img:hover {
+.mediaButton, .videoDevices, .audioDevices {
+  cursor: pointer;
+  opacity: 0.2;
+}
+
+.mediaButton:hover, .videoDevices:hover, .audioDevices:hover{
   transition: opacity 1.0s;
   -webkit-transition: opacity 1.0s;
-  opacity: 1;
+  opacity: 0.8;
 }
 
+
 #audioSwitch {
-  height:20%;
+  height:80%;
 }
 
 #videoSwitch {
-  width:70%;
+  width: 70%;
+}
+
+#shareButton {
+  width: 70%;
 }
 
 .deviceList {
   position: absolute;
-  cursor: pointer;
-  width:350%;
-  left:100%;
-  top:-20%;
+  top: 0%;
+  left: 20%;
 }
 
-.audioDevices, .videoDevices {
-  margin: 1%;
-  padding-left: 0;
-  padding-top: 3%;
-  padding-bottom: 3%;
-  border: 1px solid #2F3E46;
-  background-color: #84A98C;
+.videoDevices, .audioDevices {
+  padding: 3%;
+  margin: 3%;
   text-align: center;
-  font-size: 2vh;
+  background-color: #354F52;
   border-radius: 5px;
-  color: #2F3E46;
-  opacity: 0.4;
-}
-
-.audioDevices:hover, .videoDevices:hover {
-  color:white;
-  transition: opacity 0.5s;
-  -webkit-transition: opacity 0.5s;
-  opacity: 1;
+  border: 1px #2F3E46;
+  color: #CAD2C5;
 }
