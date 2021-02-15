@@ -9,7 +9,6 @@ import JoinGame from './lobby/JoinGame';
 
 // Game Components
 import Room from './room/Room'
-import Test from './Test';
 
 // Create a Socket to communicate with the game server
 const socket = require('socket.io-client')();
@@ -17,7 +16,7 @@ const socket = require('socket.io-client')();
 export default function App (){
   const [username, setUsername] = useState('');
   const [roomId, setRoomId] = useState('');
-  const [client, setClient] = useState({});
+  const [client, setClient] = useState({socket:null,peers:[]});
   const [message, setMessage] = useState({});
 
   // Change to username
@@ -93,13 +92,14 @@ export default function App (){
   };
 
   const handleError = (message) => {
+    console.log('error', message);
     handleMessage(message, 'red');
     setClient({socket:null, peers:[]})
   }
 
   const handleSuccess = (data) => {
     handleMessage(data.message, 'green');
-    setClient({socket:socket, peers:data.peers})
+    setClient({socket:socket, peers:data.room.active})
   }
 
   useEffect( () => {
@@ -131,11 +131,6 @@ export default function App (){
             <JoinGame username={username} setRoomId={setRoomId}
                 handleUserName={handleUserName} handleJoinGame={handleJoinGame}
                 handleLogout={handleLogout}/>
-          </div>
-        </Route>
-        <Route path='/test'>
-          <div>
-            <Test handleMessage={handleMessage}/>
           </div>
         </Route>
       </BrowserRouter>

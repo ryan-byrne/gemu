@@ -9,7 +9,7 @@ const getScale = () => {
   if (innerHeight/4 > innerWidth/3) {
     return {width:innerWidth/3, height:innerWidth/4}
   } else {
-    return {height:innerHeight/4, width:innerHeight/3} 
+    return {height:innerHeight/4, width:innerHeight/3}
   }
 }
 
@@ -118,13 +118,13 @@ export default function Room({client, roomId, username, handleLogout, handleMess
 
   useEffect(() => { videoOn.current = video}, [video]);
   useEffect(() => { audioOn.current = audio}, [audio]);
-  useEffect(() => console.log('rerendered'))
 
   return (
     <div className='roomContainer'>
       <Environment client={client} username={username} audio={audio} video={video}
         roomId={roomId} handleMessage={handleMessage} toggleVideo={toggleVideo}
-        size={size} toggleAudio={toggleAudio} handleDeviceSelect={handleDeviceSelect}/>
+        size={size} toggleAudio={toggleAudio} handleDeviceSelect={handleDeviceSelect}
+        handleLogout={handleLogout}/>
       <div className='localPlayerContainer'>
         <Player audioStream={audio.stream} videoStream={video.stream} size={size}
           username={username}/>

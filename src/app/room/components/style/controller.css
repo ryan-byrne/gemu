@@ -33,13 +33,13 @@ CAD2C5
 
 .mediaButton, .videoDevices, .audioDevices {
   cursor: pointer;
-  opacity: 0.2;
+  opacity: 0.5;
 }
 
 .mediaButton:hover, .videoDevices:hover, .audioDevices:hover{
   transition: opacity 1.0s;
   -webkit-transition: opacity 1.0s;
-  opacity: 0.8;
+  opacity: 1;
 }
 
 
@@ -64,9 +64,10 @@ CAD2C5
 .videoDevices, .audioDevices {
   padding: 3%;
   margin: 3%;
+  font-size: 2vh;
   text-align: center;
-  background-color: #354F52;
+  background-color: #2F3E46;
   border-radius: 5px;
-  border: 1px #2F3E46;
-  color: #CAD2C5;
+  border: 1px #CAD2C5;
+  color: white;
 }
